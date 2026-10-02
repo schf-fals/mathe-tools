@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#176b62">
+  <title>Geraden entdecken · Lineare Funktionen</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f6f5; color: #17332f; font: 17px/1.5 system-ui, sans-serif; }
+    main { width: min(100%, 760px); margin: auto; padding: 20px 16px 28px; }
+    .eyebrow { margin: 0 0 4px; color: #45685f; font-size: 12px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 6vw, 36px); line-height: 1.2; letter-spacing: -.035em; }
+    .intro { margin: 9px 0 18px; color: #49615d; font-size: 15px; }
+    .card { background: white; border: 1px solid #d8e4df; border-radius: 20px; overflow: hidden; }
+    .equation { text-align: center; padding: 14px 12px 12px; background: #e9f3ee; }
+    .caption { font-size: 12px; color: #45685f; letter-spacing: .08em; text-transform: uppercase; }
+    #equation { display: block; margin-top: 3px; font: 600 clamp(28px, 7vw, 38px)/1.3 Georgia, serif; font-variant-numeric: tabular-nums; }
+    #plot { width: 100%; height: clamp(280px, 85vw, 400px); overflow: hidden; background: white; }
+    #ggb { width: 100%; height: 100%; }
+    .status { margin: 0; padding: 8px 14px; font-size: 13px; color: #49615d; border-top: 1px solid #e3ebe7; }
+    .status.error { color: #91351e; background: #fff3ec; }
+    .controls { display: grid; gap: 18px; padding: 20px 18px; }
+    .label-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    label { font-weight: 650; font-size: 16px; }
+    output.value { min-width: 64px; padding: 3px 9px; border-radius: 9px; background: #e9f3ee; color: #13584f; text-align: center; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .b output.value { background: #fdf0df; color: #82501a; }
+    input[type=range] { display: block; width: 100%; min-width: 0; height: 46px; margin: 3px 0 0; background: transparent; cursor: pointer; accent-color: #176b62; -webkit-appearance: none; appearance: none; touch-action: pan-y; }
+    input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 9px; background: #d7e7df; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border: 3px solid white; border-radius: 50%; background: #176b62; box-shadow: 0 1px 5px #17332f55; margin-top: -11px; }
+    input[type=range]::-moz-range-track { height: 8px; border-radius: 9px; background: #d7e7df; }
+    input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border: 3px solid white; border-radius: 50%; background: #176b62; box-shadow: 0 1px 5px #17332f55; }
+    .b input::-webkit-slider-thumb { background: #a56a24; }
+    .b input::-moz-range-thumb { background: #a56a24; }
+    :focus-visible { outline: 3px solid #237cce; outline-offset: 3px; }
+    .ticks { display: flex; justify-content: space-between; color: #637670; font-size: 12px; margin-top: -3px; padding: 0 5px; }
+    .hint { margin: 5px 0 0; color: #49615d; font-size: 13px; }
+    .bottom { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 0 18px 18px; }
+    button { min-height: 46px; border: 1px solid #b7cfc2; border-radius: 12px; padding: 9px 16px; background: white; color: #17594f; font: 650 14px system-ui, sans-serif; cursor: pointer; }
+    button:hover { background: #e9f3ee; }
+    .task { margin: 18px 0 0; padding: 15px 17px; border-left: 3px solid #176b62; color: #38594f; font-size: 14px; }
+    footer { margin-top: 18px; color: #637670; font-size: 12px; }
+    @media (max-width: 360px) { main { padding: 14px 10px 22px; } .controls { padding: 16px 13px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Mathe zum Ausprobieren</p>
+      <h1>Geraden entdecken</h1>
+      <p class="intro">Bewege die Regler. Wie verändert sich deine Gerade?</p>
+    </header>
+    <section class="card" aria-label="Lineare Funktion erkunden">
+      <div class="equation">
+        <span class="caption">Deine Geradengleichung · y = m · x + b</span>
+        <output id="equation" for="m b" aria-live="polite" aria-atomic="true">y = x</output>
+      </div>
+      <div id="plot" role="group" aria-label="GeoGebra-Koordinatensystem mit der Geraden"><div id="ggb"></div></div>
+      <p id="status" class="status" role="status">GeoGebra wird geladen …</p>
+      <noscript><p class="status error">Bitte aktiviere JavaScript, um die Regler und GeoGebra zu nutzen.</p></noscript>
+      <div class="controls">
+        <div>
+          <div class="label-row"><label for="m">Steigung <i>m</i></label><output class="value" id="m-value" for="m">1</output></div>
+          <input id="m" type="range" min="-5" max="5" step="0.5" value="1" aria-describedby="m-hint">
+          <div class="ticks" aria-hidden="true"><span>−5</span><span>0</span><span>5</span></div>
+          <p id="m-hint" class="hint">Bestimmt Richtung und Steilheit der Geraden.</p>
+        </div>
+        <div class="b">
+          <div class="label-row"><label for="b">y-Achsenabschnitt <i>b</i></label><output class="value" id="b-value" for="b">0</output></div>
+          <input id="b" type="range" min="-5" max="5" step="0.5" value="0" aria-describedby="b-hint">
+          <div class="ticks" aria-hidden="true"><span>−5</span><span>0</span><span>5</span></div>
+          <p id="b-hint" class="hint">Die Gerade schneidet die y-Achse bei (0 | b).</p>
+        </div>
+      </div>
+      <div class="bottom"><button id="reset" type="button">↺ Zurücksetzen</button><span class="hint">Start: m = 1 und b = 0</span></div>
+    </section>
+    <p class="task"><strong>Probier’s aus:</strong> Was passiert bei m = 0? Verändere danach nur b. Was bleibt gleich?</p>
+    <footer>Koordinatensystem mit GeoGebra · Internetverbindung zum Laden erforderlich.</footer>
+  </main>
+  <script>
+    'use strict';
+    const mInput = document.getElementById('m');
+    const bInput = document.getElementById('b');
+    const equation = document.getElementById('equation');
+    const status = document.getElementById('status');
+    const plot = document.getElementById('plot');
+    let api = null;
+    let resizeFrame = 0;
+    const format = value => String(value === 0 ? 0 : value).replace('.', ',').replace('-', '−');
+    function equationText(m, b) {
+      if (m === 0) return 'y = ' + format(b);
+      const term = m === 1 ? 'x' : m === -1 ? '−x' : format(m) + ' · x';
+      return 'y = ' + term + (b === 0 ? '' : (b < 0 ? ' − ' : ' + ') + format(Math.abs(b)));
+    }
+    function update() {
+      const m = Number(mInput.value);
+      const b = Number(bInput.value);
+      document.getElementById('m-value').textContent = format(m);
+      document.getElementById('b-value').textContent = format(b);
+      mInput.setAttribute('aria-valuetext', format(m));
+      bInput.setAttribute('aria-valuetext', format(b));
+      equation.textContent = equationText(m, b);
+      if (api) {
+        api.setValue('m', m);
+        api.setValue('b', b);
+      }
+    }
+    function fitPlot() {
+      if (!api) return;
+      const width = Math.max(1, Math.floor(plot.clientWidth));
+      const height = Math.max(1, Math.floor(plot.clientHeight));
+      api.setSize(width, height);
+      // Equal unit lengths; all allowed y-intercepts remain visible.
+      const yMax = Math.max(6, 6 * height / width);
+      const xMax = yMax * width / height;
+      api.setCoordSystem(-xMax, xMax, -yMax, yMax);
+    }
+    function queueResize() {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(fitPlot);
+    }
+    function showError(message) {
+      status.textContent = message;
+      status.classList.add('error');
+    }
+    mInput.addEventListener('input', update);
+    bInput.addEventListener('input', update);
+    document.getElementById('reset').addEventListener('click', () => {
+      mInput.value = '1';
+      bInput.value = '0';
+      update();
+      fitPlot();
+    });
+    if ('ResizeObserver' in window) new ResizeObserver(queueResize).observe(plot);
+    window.addEventListener('resize', queueResize);
+    update();
+    const loadTimeout = setTimeout(() => {
+      if (!api) showError('GeoGebra lädt noch. Prüfe deine Internetverbindung und lade die Seite gegebenenfalls neu.');
+    }, 30000);
+    function startGeoGebra() {
+      try {
+        const applet = new GGBApplet({
+          appName: 'classic', language: 'de',
+          width: Math.floor(plot.clientWidth), height: Math.floor(plot.clientHeight),
+          perspective: 'G', showToolBar: false, showAlgebraInput: false,
+          showMenuBar: false, showResetIcon: false, showZoomButtons: false,
+          showFullscreenButton: false, enableRightClick: false,
+          enableLabelDrags: false, enableShiftDragZoom: false,
+          allowStyleBar: false, borderColor: '#ffffff',
+          appletOnLoad: function (loadedApi) {
+            try {
+              if (!loadedApi.evalCommand('m = 1\nb = 0\nf(x) = m*x + b')) throw new Error('Konstruktion fehlgeschlagen');
+              loadedApi.setVisible('m', false);
+              loadedApi.setVisible('b', false);
+              loadedApi.setColor('f', 23, 107, 98);
+              loadedApi.setLineThickness('f', 5);
+              loadedApi.setLabelVisible('f', false);
+              loadedApi.setFixed('f', true, false);
+              loadedApi.setAxesVisible(true, true);
+              loadedApi.setGridVisible(true);
+              loadedApi.setAxisLabels(1, 'x', 'y', '');
+              api = loadedApi;
+              update();
+              fitPlot();
+              clearTimeout(loadTimeout);
+              status.classList.remove('error');
+              status.textContent = 'Bereit · Die Regler verändern die Gerade direkt.';
+            } catch (error) {
+              api = null;
+              clearTimeout(loadTimeout);
+              showError('Das Koordinatensystem konnte nicht eingerichtet werden. Bitte lade die Seite neu.');
+            }
+          }
+        }, true);
+        applet.inject('ggb');
+      } catch (error) {
+        clearTimeout(loadTimeout);
+        showError('GeoGebra konnte nicht gestartet werden. Bitte lade die Seite neu.');
+      }
+    }
+    // Official GeoGebra loader; everything else is contained in this file.
+    const loader = document.createElement('script');
+    loader.src = 'https://www.geogebra.org/apps/deployggb.js';
+    loader.onload = startGeoGebra;
+    loader.onerror = () => {
+      clearTimeout(loadTimeout);
+      showError('GeoGebra konnte nicht geladen werden. Prüfe deine Internetverbindung und lade die Seite neu.');
+    };
+    document.head.appendChild(loader);
+  </script>
+</body>
+</html>
