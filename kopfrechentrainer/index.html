@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101820">
+  <title>Kopfrechentrainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game-shell" aria-live="polite">
+    <section class="stage" id="startScreen">
+      <p class="eyebrow">Kopfrechen-Sprint</p>
+      <h1>Kopfrechentrainer</h1>
+      <p class="course-label">Gesamtschule</p>
+      <p class="intro">Rechne so lange, bis der Zeitbalken leer ist. Jede Aufgabe kommt nur einmal pro Runde.</p>
+      <details class="qr-panel">
+        <summary>QR-Code anzeigen</summary>
+        <img src="./assets/qr-code.png" alt="QR-Code zum GitHub-Link des Kopfrechentrainers">
+        <p>Scannen und direkt starten</p>
+      </details>
+      <div class="mode-buttons" aria-label="Spielmodus wählen">
+        <button class="primary-button mode-noob" data-mode="noob" type="button">Noob</button>
+        <button class="primary-button mode-pro" data-mode="pro" type="button">Pro</button>
+        <button class="primary-button mode-hacker" data-mode="hacker" type="button">Hacker</button>
+      </div>
+    </section>
+
+    <section class="stage is-hidden" id="gameScreen">
+      <div class="topline">
+        <span id="modeLabel">Noob</span>
+        <span>Zeit <strong id="survivalTime">0:00</strong></span>
+        <span>Punkte <strong id="score">0</strong></span>
+        <span>Serie <strong id="streak">0</strong></span>
+      </div>
+
+      <div class="problem-card" id="problemCard">
+        <div class="problem" id="problem">8 · 7 = ?</div>
+        <input
+          id="answerInput"
+          class="answer-input"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          aria-label="Antwort eingeben"
+        >
+        <button class="answer-button" id="answerButton" type="button">Prüfen</button>
+        <p class="hint">Zahl eintippen und prüfen</p>
+      </div>
+    </section>
+
+    <section class="stage is-hidden" id="endScreen">
+      <p class="eyebrow">Spiel vorbei</p>
+      <h2 id="finalScore">0 Punkte</h2>
+      <p class="result-line">Modus: <strong id="finalMode">Noob</strong></p>
+      <p class="result-line">Durchgehalten: <strong id="finalTime">0:00</strong></p>
+      <p class="result-line">Beste Serie: <strong id="bestStreak">0</strong></p>
+      <p class="result-line">Gelöste Aufgaben: <strong id="solvedCount">0</strong></p>
+      <p class="result-line record-line" id="recordLine">Bestzeit: 0:00</p>
+      <div class="end-buttons">
+        <button class="primary-button" id="restartButton" type="button">Nochmal</button>
+        <button class="secondary-button" id="changeModeButton" type="button">Schwierigkeit wechseln</button>
+      </div>
+    </section>
+
+    <aside class="time-rail" aria-label="Verbleibende Zeit">
+      <div class="time-fill" id="timeFill"></div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
