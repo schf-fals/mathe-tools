@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bruchtrainer</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#eef3fa;color:#182a43;
+font:17px/1.5 system-ui,sans-serif}
+main{max-width:540px;margin:auto;padding:24px 18px 40px}
+h1{font-size:32px;margin:10px 0 0}
+h2{font-size:23px}
+p{margin:10px 0}
+.card{background:white;border-radius:22px;padding:22px;
+margin:18px 0;box-shadow:0 6px 24px #182a430a}
+button,input{font:inherit}
+button{min-height:52px;border:0;border-radius:14px;padding:12px 18px;
+cursor:pointer;background:#235bd8;color:white;font-weight:650}
+button:focus-visible,input:focus-visible{outline:3px solid #edaa36;
+outline-offset:3px}
+.menu button{display:block;width:100%;margin:12px 0;text-align:left}
+.secondary{background:#e8eef8;color:#23426d}
+input{width:100%;padding:15px;border:2px solid #b7c6db;
+border-radius:12px;margin:8px 0}
+label{font-weight:650}
+.small{font-size:14px;color:#526780}
+.task{display:flex;align-items:center;justify-content:center;
+gap:18px;font-size:34px;margin:26px 0}
+.frac{display:inline-flex;flex-direction:column;align-items:center;
+vertical-align:middle;line-height:1.25}
+.frac span:first-child{border-bottom:2px solid currentColor;
+padding:0 8px 4px}
+.frac span:last-child{padding:4px 8px 0}
+.badge{background:#fff1d3;color:#775000;border-radius:10px;
+padding:10px 14px}
+.feedback{padding:14px;border-radius:12px;margin:14px 0}
+.good{background:#def4e7;color:#14532d}
+.bad{background:#fff0e9;color:#853516}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions button{flex:1}
+details summary{cursor:pointer;font-weight:650;min-height:40px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<header>
+<p class="small">MATHE · ÜBEN IN DEINEM TEMPO</p>
+<h1>Bruchtrainer</h1>
+<p>Addieren, multiplizieren, dividieren – du entscheidest.</p>
+</header>
+
+<section id="menu" class="card menu">
+<h2>Was möchtest du üben?</h2>
+<button data-mode="add">＋ / − Addition & Subtraktion</button>
+<button data-mode="mul">× Multiplikation</button>
+<button data-mode="div">÷ Division</button>
+<p class="small">Du kannst beliebig viele Aufgaben lösen.</p>
+</section>
+
+<section id="practice" hidden>
+<div class="actions">
+<button id="back" class="secondary">← Hauptmenü</button>
+</div>
+<h2 id="heading"></h2>
+<details class="card" open>
+<summary>So geht’s: die Rechenregel</summary>
+<p id="rule"></p>
+</details>
+
+<div class="card">
+<p id="stats" class="small"></p>
+<p id="requirement"></p>
+<div id="task" class="task" aria-label=""></div>
+<form id="form" novalidate>
+<label for="answer">Dein Ergebnis</label>
+<input id="answer" type="text" autocomplete="off"
+autocapitalize="off" spellcheck="false"
+placeholder="zum Beispiel 3/4"
+aria-describedby="help feedback">
+<p id="help" class="small">
+Brüche: 3/4, 3 : 4 oder ¾. Auch 0,75 und 1 1/2 gehen.
+Negative Zahlen: -3/4. Leerzeichen sind erlaubt.
+Wenn Kürzen verlangt wird, schreibe einen gekürzten
+Bruch oder eine ganze Zahl.
+</p>
+<button id="check" type="submit" style="width:100%">Prüfen</button>
+</form>
+<div id="feedback" role="status" aria-live="polite"></div>
+<div class="actions" style="margin-top:14px">
+<button id="next" hidden>Nächste Aufgabe →</button>
+<button id="solution" class="secondary">Lösung zeigen</button>
+</div>
+</div>
+</section>
+</main>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const gcd = (a,b) => {
+  a=Math.abs(a);b=Math.abs(b);
+  while(b){[a,b]=[b,a%b]}
+  return a;
+};
+const reduce = (n,d) => {
+  if(d<0){n=-n;d=-d}
+  const g=gcd(n,d);
+  return [n/g,d/g];
+};
+const random = (min,max) =>
+  Math.floor(Math.random()*(max-min+1))+min;
+const fraction = (n,d) =>
+  `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const display = (n,d) => d===1 ? String(n) : `${n}/${d}`;
+const modes={
+  add:{
+    title:"Addition & Subtraktion",
+    rule:"Bringe die Brüche auf einen gemeinsamen Nenner. "+
+    "Addiere oder subtrahiere dann die Zähler; der gemeinsame "+
+    "Nenner bleibt gleich. Beispiel: 1/2 + 1/3 = 3/6 + 2/6 = 5/6."
+  },
+  mul:{
+    title:"Multiplikation",
+    rule:"Multipliziere Zähler mit Zähler und Nenner mit Nenner. "+
+    "Du darfst schon vor dem Multiplizieren über Kreuz kürzen. "+
+    "Beispiel: 2/3 × 3/4 = 6/12 = 1/2."
+  },
+  div:{
+    title:"Division",
+    rule:"Multipliziere den ersten Bruch mit dem Kehrwert "+
+    "des zweiten Bruchs. Tausche beim zweiten Bruch "+
+    "Zähler und Nenner. Beispiel: 2/3 ÷ 4/5 = "+
+    "2/3 × 5/4 = 10/12 = 5/6."
+  }
+};
+let mode, task, solved=false, total=0, correct=0;
+
+/* Parse numbers as exact fractions; never evaluate user input. */
+function decimal(text){
+  if(!/^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)$/.test(text))
+    return null;
+  let s=text.replace(",",".");
+  const negative=s.startsWith("-");
+  s=s.replace(/^[+-]/,"");
+  const [whole,part=""]=s.split(".");
+  if(part.length>8)return null;
+  const d=10**part.length;
+  const n=Number(whole||0)*d+Number(part||0);
+  if(!Number.isSafeInteger(n))return null;
+  return [negative?-n:n,d];
+}
+function parse(raw){
+  let s=raw.trim().replace(/[−–—﹣－]/g,"-")
+    .replace(/[⁄∕／:÷]/g,"/").replace(/\u00a0/g," ");
+  const unicode={
+    "½":"1/2","⅓":"1/3","⅔":"2/3","¼":"1/4","¾":"3/4",
+    "⅕":"1/5","⅖":"2/5","⅗":"3/5","⅘":"4/5",
+    "⅙":"1/6","⅚":"5/6","⅛":"1/8","⅜":"3/8",
+    "⅝":"5/8","⅞":"7/8"
+  };
+  s=s.replace(/[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]/g,
+    (ch,index,text)=>(index>0&&/\d/.test(text[index-1])?" ":"")
+      +unicode[ch]);
+  s=s.replace(/\\(?:dfrac|tfrac|frac)\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g,
+    "$1/$2");
+  s=s.replace(/^\$\s*|\s*\$$/g,"").trim();
+  // Mixed numbers: -1 1/2 means -(1 + 1/2).
+  const mixed=s.match(/^([+-]?)(\d+)\s+(\d+)\s*\/\s*(\d+)$/);
+  if(mixed){
+    const w=Number(mixed[2]),n=Number(mixed[3]),d=Number(mixed[4]);
+    const value=w*d+n;
+    if(!d||!Number.isSafeInteger(value)||!Number.isSafeInteger(d))
+      return null;
+    return {n:(mixed[1]==="-"?-1:1)*value,d,
+      fraction:true,fullyReduced:gcd(n,d)===1&&n<d};
+  }
+  s=s.replace(/\s/g,"")
+    .replace(/\(([+-]?\d+(?:[.,]\d+)?)\)/g,"$1");
+  const parts=s.split("/");
+  if(parts.length===2){
+    const a=decimal(parts[0]),b=decimal(parts[1]);
+    if(!a||!b||b[0]===0)return null;
+    let n=a[0]*b[1],d=a[1]*b[0];
+    if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d))return null;
+    const integerParts=/^[+-]?\d+$/.test(parts[0])&&
+      /^[+-]?\d+$/.test(parts[1]);
+    const fullyReduced=integerParts&&gcd(n,d)===1;
+    if(d<0){n=-n;d=-d}
+    return {n,d,fraction:true,fullyReduced};
+  }
+  if(parts.length!==1)return null;
+  const a=decimal(s);
+  if(!a)return null;
+  return {n:a[0],d:a[1],fraction:false,
+    fullyReduced:/^[+-]?\d+$/.test(s)};
+}
+function feedback(text,good=false){
+  $("feedback").className="feedback "+(good?"good":"bad");
+  $("feedback").textContent=text;
+}
+function newTask(){
+  const a=random(1,9),b=random(2,10),
+    c=random(1,9),d=random(2,10);
+  const op=mode==="add"?(Math.random()<.5?"+":"−"):
+    mode==="mul"?"×":"÷";
+  let n,den;
+  if(op==="+"){n=a*d+c*b;den=b*d}
+  if(op==="−"){n=a*d-c*b;den=b*d}
+  if(op==="×"){n=a*c;den=b*d}
+  if(op==="÷"){n=a*d;den=b*c}
+  const [rn,rd]=reduce(n,den);
+  task={a,b,c,d,op,n,den,rn,rd,short:Math.random()<.45};
+  solved=false;
+  $("answer").value="";
+  $("answer").disabled=false;
+  $("check").hidden=false;
+  $("next").hidden=true;
+  $("solution").hidden=false;
+  $("feedback").className="";
+  $("feedback").textContent="";
+  $("requirement").textContent=task.short
+    ?"Kürze dein Ergebnis vollständig."
+    :"Ein gleichwertiges Ergebnis reicht. Kürzen ist freiwillig.";
+  $("requirement").className=task.short?"badge":"small";
+  $("task").innerHTML=fraction(a,b)+`<span>${op}</span>`+
+    fraction(c,d)+`<span>= ?</span>`;
+  $("task").setAttribute("aria-label",
+    `${a} durch ${b} ${op} ${c} durch ${d}`);
+  $("stats").textContent=
+    `${correct} von ${total} abgeschlossenen Aufgaben selbst gelöst`;
+}
+function finish(success){
+  solved=true;total++;if(success)correct++;
+  $("answer").disabled=true;
+  $("check").hidden=true;
+  $("next").hidden=false;
+  $("solution").hidden=true;
+  $("stats").textContent=
+    `${correct} von ${total} abgeschlossenen Aufgaben selbst gelöst`;
+}
+document.querySelectorAll("[data-mode]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    mode=button.dataset.mode;
+    total=correct=0;
+    $("menu").hidden=true;
+    $("practice").hidden=false;
+    $("heading").textContent=modes[mode].title;
+    $("rule").textContent=modes[mode].rule;
+    newTask();
+    $("heading").setAttribute("tabindex","-1");
+    $("heading").focus();
+  });
+});
+$("back").onclick=()=>{
+  $("practice").hidden=true;
+  $("menu").hidden=false;
+  document.querySelector(`[data-mode="${mode}"]`).focus();
+};
+$("form").onsubmit=event=>{
+  event.preventDefault();
+  if(solved)return;
+  const result=parse($("answer").value);
+  if(!result){
+    feedback("Diese Eingabe kann ich noch nicht lesen. "+
+      "Versuche zum Beispiel -3/4 oder 2. Der Nenner darf nicht 0 sein.");
+    return;
+  }
+  const [n,d]=reduce(result.n,result.d);
+  if(n!==task.rn||d!==task.rd){
+    feedback("Noch nicht richtig. Schau dir die Rechenregel an "+
+      "und versuche es erneut.");
+    return;
+  }
+  if(task.short&&!result.fullyReduced){
+    feedback(result.fraction
+      ?"Der Wert stimmt! Kürze den Bruch noch vollständig. "+
+        "Bei einem ganzen Ergebnis kannst du die ganze Zahl schreiben."
+      :"Der Wert stimmt! Schreibe ihn jetzt als vollständig "+
+        "gekürzten Bruch oder als ganze Zahl.");
+    return;
+  }
+  feedback("Richtig! "+display(task.rn,task.rd)+
+    (task.short?" ist vollständig gekürzt.":" ist das Ergebnis."),true);
+  finish(true);
+};
+$("next").onclick=()=>{
+  newTask();
+  $("answer").focus();
+};
+$("solution").onclick=()=>{
+  if(solved)return;
+  let explanation;
+  const {a,b,c,d,op,n,den,rn,rd}=task;
+  if(op==="+"||op==="−"){
+    explanation=`Gemeinsamer Nenner: ${b} × ${d} = ${b*d}. `+
+      `${a*d}/${b*d} ${op} ${c*b}/${b*d} = ${n}/${den}.`;
+  }else if(op==="×"){
+    explanation=`(${a} × ${c}) / (${b} × ${d}) = ${n}/${den}.`;
+  }else{
+    explanation=`Kehrwert des zweiten Bruchs: ${d}/${c}. `+
+      `${a}/${b} × ${d}/${c} = ${n}/${den}.`;
+  }
+  feedback(explanation+" Vollständig gekürzt: "+display(rn,rd)+
+    ". Probiere es bei der nächsten Aufgabe selbst.");
+  finish(false);
+};
+</script>
+</body>
+</html>
