@@ -17,9 +17,15 @@ header{text-align:center}header p{margin:10px auto}.eyebrow{color:#58716d}h1{col
 @media(min-width:600px){.board{padding:16px;gap:14px}.card{border-radius:15px}.card:before{inset:7px;border-radius:8px}.back-symbol{width:58px;height:58px;font-size:36px}.back-label{font-size:11px}.progress i{width:22px}}
 @media(prefers-reduced-motion:no-preference){.card.just-opened{animation:pair-found .35s ease-out}@keyframes pair-found{50%{transform:scale(1.035)}}}
 .back-title{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:clamp(48px,14vw,86px);aspect-ratio:1;border:1px solid #edda9c;border-radius:50%;background:#173e4580;color:#f8dc91;box-shadow:0 0 0 4px #ffffff08;font-size:clamp(10px,2.7vw,17px);font-weight:800;letter-spacing:.01em;line-height:1.2}.back-title span:last-child{font-size:.66em;letter-spacing:.09em;text-transform:uppercase}
+.mode-picker{display:flex;justify-content:center;gap:10px;border:0;padding:14px 0 0;margin:0;flex-wrap:wrap}.mode-picker legend{text-align:center;font-size:12px;font-weight:700}.mode-picker label{padding:10px 14px;background:#fffdf8;border:1px solid #cbd9cf;border-radius:12px;cursor:pointer;font-size:14px}.mode-picker input{accent-color:#24565e}.players{display:flex;gap:10px;margin:12px 0}.player{flex:1;padding:10px;border:2px solid currentColor;border-radius:12px;font-size:13px;background:#ffffff99}.player.green{color:#248455}.player.blue{color:#236fc1}.player.active{box-shadow:0 0 0 3px currentColor;font-weight:800}.players[hidden]{display:none}.card.matched.player-blue{border-color:#236fc1;background:#edf5ff;box-shadow:0 4px 0 #236fc140,0 5px 8px #173e4514}.card.matched.player-blue:after{color:#236fc1}.card.matched.player-green{border-color:#248455}.card.matched.player-blue .role-label{color:#236fc1}
+.player.active{color:#fff;border-color:transparent;box-shadow:0 0 0 3px #fff,0 3px 10px #173e4530}
+.player.green.active{background:#248455}
+.player.blue.active{background:#236fc1}
 </style>
 <main>
 <header><div class="eyebrow">Mathematik · Klasse 7</div><h1>Bruch-Memory</h1><p>Ein Bruch. Zwei Gesichter. Finde die 6 passenden Paare!</p></header>
+<fieldset class="mode-picker"><legend>Spielmodus</legend><label><input type="radio" name="mode" value="solo" checked> Alleine</label><label><input type="radio" name="mode" value="duo"> Zu zweit</label></fieldset>
+<div class="players" id="players" hidden aria-label="Punkte und aktueller Zug"></div>
 <div class="toolbar"><div class="stats" id="stats"></div><button class="new" id="new">↻ Neues Memory</button></div>
 <section class="board" id="board" aria-label="Memory mit zwölf Karten"></section>
 <p class="status" id="status" role="status" aria-live="polite"></p>
@@ -44,6 +50,12 @@ const contexts=[
  (n,d)=>`Eine Strecke besteht aus ${d} gleich langen Etappen. Davon habe ich ${n} geschafft.`
 ];
 let cards=[],selected=[],attempts=0,found=0,locked=false;
+let mode='solo',currentPlayer=0,scores=[0,0];
+function turnText(){return mode==='duo'?`Spieler ${currentPlayer===0?'Grün':'Blau'} ist am Zug.`:''}
+function updatePlayers(){
+ const panel=document.getElementById('players');panel.hidden=mode!=='duo';
+ panel.innerHTML=['Grün','Blau'].map((name,i)=>`<div class="player ${i===0?'green':'blue'}${found<6&&currentPlayer===i?' active':''}">${name}: ${scores[i]} ${scores[i]===1?'Paar':'Paare'}${found<6&&currentPlayer===i?' · Am Zug':''}</div>`).join('');
+}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function gcd(a,b){return b?gcd(b,a%b):a}
 function capital(s){return s[0].toUpperCase()+s.slice(1)}
@@ -75,17 +87,25 @@ function content(c){const{n,d,type}=c;switch(type){
  case'context':return `<span class="context">${c.context}</span>`;
 }}
 function update(){stats.innerHTML=`<span>${found} / 6 Paare · ${attempts} ${attempts===1?'Versuch':'Versuche'}</span><span class="progress" aria-hidden="true">${Array.from({length:6},(_,i)=>`<i class="${i<found?'done':''}"></i>`).join('')}</span>`;statusEl.classList.toggle('win',found===6)}
-function render(openedIndex=-1){board.innerHTML='';cards.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.className='card'+(c.seen?' seen':'')+(c.open?' open':'')+(c.matched?' matched':'')+(i===openedIndex?' just-opened':'');b.dataset.index=i;
+function render(openedIndex=-1){updatePlayers();board.innerHTML='';cards.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.className='card'+(c.seen?' seen':'')+(c.open?' open':'')+(c.matched?' matched':'')+(c.matched&&mode==='duo'?(c.owner===0?' player-green':' player-blue'):'')+(i===openedIndex?' just-opened':'');b.dataset.index=i;
  const label=c.type==='circle'?`Kreis: ${c.n} von ${c.d} gleich großen Kreissektoren gefärbt`:c.type==='area'?`${c.n} von ${c.d} gleich großen Teilflächen gefärbt`:c.type==='line'?`Zahlenstrahl von null bis eins mit ${c.d} gleich langen Abschnitten. Markierung beim ${c.n}. Teilstrich nach null.`:btoaSafe(content(c));
  b.setAttribute('aria-label',c.open||c.matched?`Karte ${i+1}: ${label}${c.matched?', Paar gefunden':''}`:`Karte ${i+1}, verdeckt${c.seen?', schon angesehen':''}`);b.innerHTML=c.open||c.matched?`<span class="face">${content(c)}</span>`:'<span class="back" aria-hidden="true"><span class="back-title"><span>Bruch-</span><span>Memory</span></span></span>';b.setAttribute('aria-disabled',String(c.matched));board.appendChild(b)});update()}
 function btoaSafe(s){return s.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()}
 function play(i){
- if(locked){selected.forEach(j=>cards[j].open=false);selected=[];locked=false;statusEl.textContent='Weiter geht’s: Decke zwei Karten auf.';render();return}
+ if(locked){selected.forEach(j=>cards[j].open=false);selected=[];locked=false;statusEl.textContent='Decke zwei Karten auf. '+turnText();render();return}
  const c=cards[i];if(c.matched||c.open)return;c.open=true;selected.push(i);
- if(selected.length===1){statusEl.textContent='Wähle die zweite Karte.';render(i);return}
- attempts++;const[a,b]=selected.map(j=>cards[j]);if(a.pair===b.pair){a.matched=b.matched=true;found++;selected=[];statusEl.textContent=found===6?`Geschafft! Du hast alle 6 Paare in ${attempts} Versuchen gefunden. Lust auf eine neue Runde?`:'Das passt! Suche das nächste Paar.'}else{a.seen=b.seen=true;locked=true;statusEl.textContent='Diese Karten passen nicht zusammen. Tippe auf das Spielfeld, um sie wieder umzudrehen.'}render(i);
+ if(selected.length===1){statusEl.textContent='Wähle die zweite Karte. '+turnText();render(i);return}
+ attempts++;const[a,b]=selected.map(j=>cards[j]);
+ if(a.pair===b.pair){
+  a.matched=b.matched=true;a.owner=b.owner=currentPlayer;scores[currentPlayer]++;found++;selected=[];
+  if(found===6){statusEl.textContent=mode==='duo'?`Alle Paare gefunden! Grün: ${scores[0]}, Blau: ${scores[1]}. `+(scores[0]===scores[1]?'Unentschieden!':`Spieler ${scores[0]>scores[1]?'Grün':'Blau'} gewinnt!`):`Geschafft! Du hast alle 6 Paare in ${attempts} Versuchen gefunden. Lust auf eine neue Runde?`}
+  else statusEl.textContent=mode==='duo'?'Paar gefunden! Du bist noch einmal dran. '+turnText():'Das passt! Suche das nächste Paar.';
+ }else{
+  a.seen=b.seen=true;locked=true;if(mode==='duo')currentPlayer=1-currentPlayer;
+  statusEl.textContent='Diese Karten passen nicht zusammen. '+turnText()+' Tippe auf das Spielfeld, um sie wieder umzudrehen.';
+ }render(i);
 }
-function newGame(){cards=[];selected=[];attempts=found=0;locked=false;const keys=new Set();const largePair=Math.random()<.35?Math.floor(Math.random()*6):-1;const typePool=shuffle([...types,...types]);
+function newGame(){cards=[];selected=[];attempts=found=0;locked=false;currentPlayer=0;scores=[0,0];const keys=new Set();const largePair=Math.random()<.35?Math.floor(Math.random()*6):-1;const typePool=shuffle([...types,...types]);
  for(let pair=0;pair<6;pair++){
  let n,d,key;do{d=pair===largePair?11+Math.floor(Math.random()*10):2+Math.floor(Math.random()*8);n=1+Math.floor(Math.random()*(d-1));const g=gcd(n,d);key=`${n/g}/${d/g}`}while(keys.has(key));keys.add(key);
  let t1=typePool.pop(),t2=typePool.pop();if(t1===t2){const other=typePool.findIndex(t=>t!==t1);[t2,typePool[other]]=[typePool[other],t2]}
@@ -94,9 +114,10 @@ function newGame(){cards=[];selected=[];attempts=found=0;locked=false;const keys
   const context=type==='context'?suitableContexts[Math.floor(Math.random()*suitableContexts.length)](n,d):'';
   cards.push({n,d,type,pair,context,open:false,seen:false,matched:false});
  }
- }shuffle(cards);statusEl.textContent='Los geht’s! Decke zwei Karten auf.';render();
+ }shuffle(cards);statusEl.textContent='Los geht’s! Decke zwei Karten auf. '+turnText();render();
 }
 board.addEventListener('click',e=>{const card=e.target.closest('button');if(card)play(Number(card.dataset.index));else if(locked)play(0)});
+document.querySelectorAll('input[name="mode"]').forEach(input=>input.addEventListener('change',()=>{mode=input.value;newGame()}));
 document.getElementById('new').addEventListener('click',newGame);newGame();
 </script>
 </html>
