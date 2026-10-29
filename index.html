@@ -3,40 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#193f72">
   <title>Meine Mathe-Tools</title>
   <style>
-    body {
-      max-width: 520px;
-      margin: 40px auto;
-      padding: 0 20px;
-      font-family: system-ui, sans-serif;
-      background: #eef3fa;
-      color: #182a43;
-    }
-    a {
-      display: block;
-      margin: 16px 0;
-      padding: 20px;
-      background: white;
-      border-radius: 14px;
-      color: #235bd8;
-      font-size: 20px;
-      font-weight: bold;
-      text-decoration: none;
-    }
-    a:hover { background: #dce8ff; }
+    * { box-sizing: border-box; }
+    :root { color-scheme: light; }
+    body { margin: 0; min-height: 100vh; font-family: system-ui, -apple-system, sans-serif; color: #193552; background: radial-gradient(ellipse at 0% 0%, #d9eaff 0, transparent 50%), radial-gradient(ellipse at 100% 100%, #dbe6fa 0, transparent 55%), #f1f6fc; }
+    main { max-width: 680px; margin: auto; padding: 48px 20px 36px; }
+    .eyebrow { margin: 0 0 16px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; color: #4a6d97; }
+    h1 { margin: 0 0 12px; font-size: clamp(32px, 7vw, 46px); letter-spacing: -.045em; line-height: 1.12; }
+    .intro { margin: 0 0 28px; color: #536e8d; font-size: 16px; line-height: 1.6; }
+    nav a { display: block; margin: 12px 0; padding: 21px 23px; border: 1px solid #d4e0ef; border-left: 4px solid #397dcc; border-radius: 15px; background: #ffffff; color: #244f82; font-size: 17px; font-weight: 650; line-height: 1.45; text-decoration: none; overflow-wrap: anywhere; box-shadow: 0 3px 0 #19355206; }
+    nav a:focus-visible { outline: 3px solid #397dcc; outline-offset: 4px; }
+    @media (hover: hover) { nav a:hover { background: #e9f2ff; border-color: #83abe0; box-shadow: 0 5px 15px #1935520c; } }
+    @media (prefers-reduced-motion: no-preference) { nav a { transition: background .16s, border-color .16s, box-shadow .16s; } }
+    @media (max-width: 480px) { main { padding: 32px 16px 24px; } nav a { padding: 18px; font-size: 16px; } }
   </style>
 </head>
 <body>
-  <h1>Meine Mathe-Tools</h1>
-  <p>Wähle aus, welches Tool du nutzen möchtest:</p>
+  <main>
+    <p class="eyebrow">Entdecken · Üben · Verstehen</p>
+    <h1>Meine Mathe-Tools</h1>
+    <p class="intro">Wähle aus, welches Tool du nutzen möchtest:</p>
 
-  <a href="./kopfrechentrainer/">Kopfrechnen →</a>
-  <a href="./bruchmemory_darstellungsformen/">Bruch-Memory: Darstellungsformen →</a>
-  <a href="./bruchmemory_addition_subtraktion/">Bruch-Memory: Addition und Subtraktion →</a>
-  <a href="./bruchtrainer/">Bruchrechnung →</a>
-  <a href="./lineare_funktionen_erkunden/">Lineare Funktionsgleichungen und deren Graphen anzeigen lassen →</a>
-  <a href="./lineare_funktionsgleichungen_ablesen/">Lineare Funktionsgleichungen aus dem Graphen ablesen →</a>
-  <a href="./lineare_funktionen_kontexte/">Kontexte zu linearen Funktionen erkunden →</a>
+    <nav aria-label="Mathe-Tools">
+      <!-- Neues Tool: Eine Linkzeile kopieren und nur Adresse sowie Namen ändern. -->
+      <a href="./kopfrechentrainer/">Kopfrechnen →</a>
+      <a href="./bruchmemory_darstellungsformen/">Bruch-Memory: Darstellungsformen →</a>
+      <a href="./bruchmemory_addition_subtraktion/">Bruch-Memory: Addition und Subtraktion →</a>
+      <a href="./bruchtrainer/">Bruchrechnung →</a>
+      <a href="./lineare_funktionen_erkunden/">Lineare Funktionsgleichungen und deren Graphen anzeigen lassen →</a>
+      <a href="./lineare_funktionsgleichungen_ablesen/">Lineare Funktionsgleichungen aus dem Graphen ablesen →</a>
+      <a href="./lineare_funktionen_kontexte/">Kontexte zu linearen Funktionen erkunden →</a>
+    </nav>
+  </main>
 </body>
 </html>
+
