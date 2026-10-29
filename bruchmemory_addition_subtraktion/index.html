@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#43265f">
+<title>Bruch-Memory · Plus & Minus</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5effa;color:#43265f;font-family:system-ui,-apple-system,sans-serif}main{max-width:760px;margin:auto;padding:24px 12px 32px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800}h1{font-size:clamp(29px,7vw,44px);margin:6px 0 10px;letter-spacing:-.04em}p{line-height:1.5;margin:8px 0}header p{max-width:580px;font-size:14px;color:#6b587c}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:20px 0 12px}.stats{font-weight:750;font-size:13px}.new{border:0;border-radius:12px;background:#43265f;color:white;padding:13px 15px;font:700 13px system-ui;cursor:pointer;min-height:46px}.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.card{position:relative;min-width:0;min-height:140px;aspect-ratio:0.7;border:3px solid transparent;border-radius:14px;background:#70429a;color:#fff;box-shadow:0 3px 0 #00000012;cursor:pointer;padding:8px 5px;font-family:inherit;touch-action:manipulation;overflow-wrap:anywhere;display:flex;align-items:center;justify-content:center}.card:focus-visible,.new:focus-visible{outline:3px solid #d79019;outline-offset:3px}.back{font-size:32px;font-weight:500;opacity:.8}.card.open,.card.matched{background:#fffbff;color:#43265f}.card.seen{border-color:#ce4b4b}.card.matched{border-color:#248455;background:#eff9ef;cursor:default}.face{width:100%;font-size:clamp(11px,2.7vw,17px);line-height:1.35;font-weight:600}.context{font-size:clamp(10px,2.45vw,14px);font-weight:500}.fraction{display:inline-flex;flex-direction:column;align-items:center;font-size:clamp(27px,6vw,44px);line-height:1.15;font-weight:600}.fraction span:first-child{border-bottom:2px solid;padding:0 8px 3px}.fraction span:last-child{padding-top:3px}.division{font-size:clamp(21px,5vw,34px)}svg{width:100%;height:auto;display:block}.status{min-height:52px;margin-top:16px;font-size:14px;font-weight:650}.legend{font-size:12px;color:#756480;display:flex;gap:14px;flex-wrap:wrap}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}.help{margin-top:20px;border-top:1px solid #ddd0e8;padding-top:14px;font-size:12px;color:#756480}@media(min-width:600px){main{padding:36px 24px}.board{gap:12px}.card{aspect-ratio:.9;min-height:155px;padding:12px}.face{font-size:18px}.context{font-size:15px}}@media(prefers-reduced-motion:no-preference){.card{transition:background .15s,border-color .15s,transform .15s}.card:active{transform:scale(.97)}}
+/* Spieltisch und Karten */
+body{background:radial-gradient(ellipse at 15% 0%,#eedafa 0,transparent 50%),radial-gradient(ellipse at 100% 80%,#ddd2f4 0,transparent 45%),#f5effa;min-height:100vh}
+header{text-align:center}header p{margin:10px auto}.eyebrow{color:#7e6693}h1{color:#43265f}
+.toolbar{background:#ffffffa8;padding:10px 12px;border-radius:18px;border:1px solid #fff;box-shadow:0 4px 18px #43265f08}.stats{display:flex;flex-direction:column;gap:6px}.progress{display:flex;gap:4px}.progress i{width:16px;height:6px;border-radius:8px;background:#e1d5ec}.progress i.done{background:#248455}.new{background:#ead1fa;color:#263f3f;box-shadow:0 3px 0 #ba8ed4}.new:active{transform:translateY(2px);box-shadow:0 1px 0 #ba8ed4}
+.board{padding:10px;background:#e4d6f0;border:1px solid #c9b3dc;border-radius:22px;box-shadow:inset 0 2px 5px #43265f10,0 10px 30px #43265f08;gap:9px}
+.card{border-color:#faf1ff;border-radius:12px;background-color:#70429a;background-image:repeating-linear-gradient(45deg,transparent 0 10px,#ffffff08 10px 12px),repeating-linear-gradient(-45deg,transparent 0 10px,#ffffff08 10px 12px);box-shadow:0 4px 0 #43265f40,0 5px 8px #43265f14;padding:8px 5px}
+.card:before{content:'';position:absolute;inset:5px;border:1px solid #ffffff50;border-radius:6px;pointer-events:none}.back{display:flex;flex-direction:column;align-items:center;gap:8px;opacity:1}.back-symbol{display:grid;place-items:center;width:40px;height:40px;border:1px solid #f3d8ff;border-radius:50%;background:#43265f80;color:#f5deff;font-size:28px;font-weight:700;box-shadow:0 0 0 4px #ffffff08}.back-label{font-size:8px;font-weight:800;letter-spacing:.14em;color:#f2ddff;text-transform:uppercase}
+.card.open,.card.matched{background-image:none}.card.open:before,.card.matched:before{border-color:#43265f10}.card.seen{border-color:#ce4b4b;box-shadow:0 4px 0 #a8303040,0 5px 8px #43265f14}.card.matched{border-color:#248455;box-shadow:0 4px 0 #24845540,0 5px 8px #43265f14}.card.matched:after{content:'✓';position:absolute;right:5px;top:4px;color:#248455;font-size:13px;font-weight:900}.face{position:relative;z-index:1}.status{text-align:center;background:#ffffff96;border-radius:14px;padding:12px;margin:16px 0 12px;min-height:64px}.status.win{background:#e0f3dd;color:#21653c;border:1px solid #9fcca5}.legend{justify-content:center}.help{text-align:center;margin-top:16px}
+@media(min-width:600px){.board{padding:16px;gap:14px}.card{border-radius:15px}.card:before{inset:7px;border-radius:8px}.back-symbol{width:58px;height:58px;font-size:36px}.back-label{font-size:11px}.progress i{width:22px}}
+@media(prefers-reduced-motion:no-preference){.card.just-opened{animation:pair-found .35s ease-out}@keyframes pair-found{50%{transform:scale(1.035)}}}
+.back-title{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:clamp(48px,14vw,86px);aspect-ratio:1;border:1px solid #f3d8ff;border-radius:50%;background:#43265f80;color:#f5deff;box-shadow:0 0 0 4px #ffffff08;font-size:clamp(10px,2.7vw,17px);font-weight:800;letter-spacing:.01em;line-height:1.2}.back-title span:last-child{font-size:.66em;letter-spacing:.09em;text-transform:uppercase}
+.levels{display:flex;gap:12px;justify-content:center;border:0;padding:12px 0 0;margin:0}.levels legend{text-align:center;font-size:12px;font-weight:700;padding-top:16px}.levels label{background:#fffbff;border:1px solid #c9b3dc;border-radius:12px;padding:10px 18px;cursor:pointer;font-weight:700}.levels label:has(input:checked){background:#d7eade;border-color:#248455}.levels input{accent-color:#248455}.level-hint{text-align:center;font-size:12px;color:#6b587c;min-height:38px}.role-label{display:block;text-transform:uppercase;letter-spacing:.09em;font-size:8px;color:#826895;margin-bottom:9px}.expression{display:flex;align-items:center;justify-content:center;gap:5px}.expression .fraction{font-size:clamp(19px,4.4vw,31px)}.expression .fraction span:first-child{padding:0 4px 2px}.picture-task svg{max-height:64px}.picture-task .operator{display:block;font-size:20px;line-height:1}.task-words{font-size:clamp(10px,2.45vw,15px)}@media(min-width:600px){.role-label{font-size:10px}.picture-task svg{max-height:65px}}
+.card{min-height:190px}.context{font-size:clamp(10px,2.45vw,14px);line-height:1.25}.role-label{line-height:1.2}@media(min-width:600px){.card{min-height:205px}}
+/* Karten bleiben unabhängig von Mindesthöhe und Inhalt in ihrer Rasterspalte. */
+.board{gap:12px;align-items:stretch}
+.card{width:100%;max-width:100%;min-width:0;aspect-ratio:auto;overflow:hidden}
+.face,.back{min-width:0;max-width:100%}
+.back-title{width:min(100%,86px);min-width:0}
+.expression{flex-wrap:wrap;column-gap:3px;row-gap:5px}
+.role-label{letter-spacing:.03em;overflow-wrap:anywhere}
+.picture-task svg{max-width:100%}
+@media(min-width:600px){.board{gap:16px}}
+</style>
+<main>
+<header><div class="eyebrow">Mathematik · Klasse 7</div><h1>Bruch-Memory · + & −</h1><p>Rechne aus und finde das Ergebnis: 6 Aufgaben, 6 passende Lösungen.</p></header>
+<fieldset class="levels"><legend>Deine Schwierigkeit</legend><label><input type="radio" name="level" value="base" checked> Basis</label><label><input type="radio" name="level" value="pro"> Profi</label></fieldset><p class="level-hint" id="levelHint"></p><div class="toolbar"><div class="stats" id="stats"></div><button class="new" id="new">↻ Neues Memory</button></div>
+<section class="board" id="board" aria-label="Memory mit zwölf Karten"></section>
+<p class="status" id="status" role="status" aria-live="polite"></p>
+<div class="legend"><span><i class="dot" style="background:#ce4b4b"></i>Schon angesehen</span><span><i class="dot" style="background:#248455"></i>Paar gefunden</span></div>
+<p class="help">Tippe auf zwei Karten. Bei einem Fehlversuch bleiben sie offen, bis du ein weiteres Mal auf das Spielfeld tippst. Danach bleiben die roten Ränder als Merkhilfe sichtbar. Du spielst ohne Zeitdruck.</p>
+</main>
+<script>
+'use strict';
+const board=document.getElementById('board'),statusEl=document.getElementById('status'),stats=document.getElementById('stats');
+const numbers=['null','eins','zwei','drei','vier','fünf','sechs','sieben','acht','neun','zehn','elf','zwölf','dreizehn','vierzehn','fünfzehn','sechzehn','siebzehn','achtzehn','neunzehn','zwanzig'];
+const denominators=['','','Halbe','Drittel','Viertel','Fünftel','Sechstel','Siebtel','Achtel','Neuntel','Zehntel','Elftel','Zwölftel','Dreizehntel','Vierzehntel','Fünfzehntel','Sechzehntel','Siebzehntel','Achtzehntel','Neunzehntel','Zwanzigstel'];
+const types=['fraction','area','circle','line','division','words','parts','short','context'];
+const contexts=[
+ (n,d)=>`Eine Tafel Schokolade hat ${d} gleich große Teile. Davon nehme ich ${n}.`,
+ (n,d)=>`Eine Pizza ist in ${d} gleich große Stücke geteilt. Davon esse ich ${n}.`,
+ (n,d)=>`Ein Kuchen ist in ${d} gleich große Stücke geteilt. Davon liegen ${n} auf dem Teller.`,
+ (n,d)=>`In einem Beutel liegen ${d} Murmeln. Davon sind ${n} blau.`,
+ (n,d)=>`In einer Klasse sind ${d} Kinder. Davon kommen ${n} mit dem Fahrrad.`,
+ (n,d)=>`Ein Band ist in ${d} gleich lange Abschnitte geteilt. Davon färbe ich ${n} rot.`,
+ (n,d)=>`Ein Beet ist in ${d} gleich große Flächen geteilt. Auf ${n} davon wachsen Blumen.`,
+ (n,d)=>`Auf einem Tisch liegen ${d} Karten. Davon sind ${n} aufgedeckt.`,
+ (n,d)=>`Eine Strecke besteht aus ${d} gleich langen Etappen. Davon habe ich ${n} geschafft.`
+];
+let cards=[],selected=[],attempts=0,found=0,locked=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function gcd(a,b){return b?gcd(b,a%b):a}
+function capital(s){return s[0].toUpperCase()+s.slice(1)}
+function word(n){return n===1?'ein':numbers[n]}
+function visual(n,d,type){
+ if(type==='circle'){
+  let sectors='';
+  for(let i=0;i<d;i++){
+   const start=-Math.PI/2+i*2*Math.PI/d,end=-Math.PI/2+(i+1)*2*Math.PI/d;
+   const x1=100+88*Math.cos(start),y1=100+88*Math.sin(start),x2=100+88*Math.cos(end),y2=100+88*Math.sin(end);
+   sectors+=`<path d="M100 100 L${x1} ${y1} A88 88 0 0 1 ${x2} ${y2} Z" fill="${i<n?'#9561c4':'#eee7f5'}" stroke="#43265f" stroke-width="1.5"/>`;
+  }
+  return `<svg viewBox="0 0 200 200" aria-hidden="true">${sectors}</svg>`;
+ }
+ if(type==='area'){
+  let shapes='';for(let i=0;i<d;i++)shapes+=`<rect x="${8+i*184/d}" y="20" width="${184/d}" height="72" fill="${i<n?'#9561c4':'#eee7f5'}" stroke="#43265f" stroke-width="1.2"/>`;
+  return `<svg viewBox="0 0 200 112" aria-hidden="true">${shapes}</svg>`;
+ }
+ let ticks='';for(let i=0;i<=d;i++){const x=14+i*172/d;ticks+=`<path d="M${x} 42v16" stroke="#756480" stroke-width="1.5"/>`}
+ return `<svg viewBox="0 0 200 100" aria-hidden="true"><path d="M14 50H186" stroke="#43265f" stroke-width="2"/>${ticks}<circle cx="${14+n*172/d}" cy="50" r="6" fill="#8853b7"/><text x="14" y="83" text-anchor="middle" font-size="21" fill="#43265f">0</text><text x="186" y="83" text-anchor="middle" font-size="21" fill="#43265f">1</text></svg>`;
+}
+function resultContent(c){const{n,d,type}=c;switch(type){
+ case'fraction':return `<span class="fraction"><span>${n}</span><span>${d}</span></span>`;
+ case'area':case'circle':case'line':return visual(n,d,type);
+ case'division':return `<span class="division">${n} : ${d}</span>`;
+ case'words':return `${capital(word(n))} ${denominators[d]}`;
+ case'parts':return `${capital(numbers[n])} von ${numbers[d]} gleich großen Teilen`;
+ case'short':return `${capital(numbers[n])} von ${numbers[d]}`;
+ case'context':return `<span class="context">${c.context}</span>`;
+}}
+
+let level='base';
+const taskTypes=['formula','words','instruction','context','area','circle'];
+function fraction(n,d){return '<span class="fraction"><span>'+n+'</span><span>'+d+'</span></span>'}
+function spoken(n,d){return word(n)+' '+denominators[d]}
+function taskText(c){return c.a+'/'+c.b+(c.op==='+'?' plus ':' minus ')+c.x+'/'+c.y}
+function taskContent(c){
+ const sign=c.op==='+'?'+':'−';
+ if(c.type==='formula')return '<span class="expression">'+fraction(c.a,c.b)+'<span>'+sign+'</span>'+fraction(c.x,c.y)+'</span>';
+ if(c.type==='words')return '<span class="task-words">'+capital(spoken(c.a,c.b))+' '+(c.op==='+'?'plus':'minus')+' '+spoken(c.x,c.y)+'</span>';
+ if(c.type==='instruction')return '<span class="task-words">'+(c.op==='+'?'Addiere '+spoken(c.x,c.y)+' zu '+spoken(c.a,c.b):'Subtrahiere '+spoken(c.x,c.y)+' von '+spoken(c.a,c.b))+'.</span>';
+ if(c.type==='context')return '<span class="context">'+c.taskContext+'</span>';
+ return '<span class="picture-task">'+visual(c.a,c.b,c.type)+'<span class="operator">'+sign+'</span>'+visual(c.x,c.y,c.type)+'</span>';
+}
+function content(c){return '<span class="role-label">'+(c.role==='task'?'Aufgabe':'Ergebnis')+'</span>'+(c.role==='task'?taskContent(c):resultContent(c))}
+function makeContext(c){
+ const a=c.a+'/'+c.b,b=c.x+'/'+c.y;
+ const settings=[
+  ['Pizza','einer Pizza','Iss insgesamt wie viel Pizza?'],
+  ['Kuchen','eines Kuchens','Wie viel Kuchen ist es insgesamt?'],
+  ['Saft','eines Liters Saft','Wie viel Saft ist es insgesamt?'],
+  ['Band','eines Meters Band','Wie viel Band ist es insgesamt?']
+ ];
+ const s=settings[Math.floor(Math.random()*settings.length)];
+ return c.op==='+'?'Ich habe '+a+' '+s[1]+' und bekomme '+b+' '+s[1]+' dazu. Wie viel ist es zusammen?':'Ich habe '+a+' '+s[1]+' und gebe '+b+' '+s[1]+' ab. Wie viel bleibt?';
+}
+function candidates(pro,op){
+ const pool=[];
+ for(let b=3;b<=12;b++)for(let y=pro?2:b;y<=(pro?12:b);y++){
+  if(pro&&b===y)continue;
+  const common=b*y/gcd(b,y);if(common>20)continue;
+  for(let a=1;a<b;a++)for(let x=1;x<y;x++){
+   const raw=a*(common/b)+(op==='+'?1:-1)*x*(common/y);if(raw<=0||raw>=common)continue;
+   const g=gcd(raw,common),n=pro?raw/g:raw,d=pro?common/g:common;
+   pool.push({a,b,x,y,op,n,d,key:(raw/g)+'/'+(common/g)});
+  }
+ }return shuffle(pool);
+}
+function update(){stats.innerHTML=`<span>${found} / 6 Paare · ${attempts} ${attempts===1?'Versuch':'Versuche'}</span><span class="progress" aria-hidden="true">${Array.from({length:6},(_,i)=>`<i class="${i<found?'done':''}"></i>`).join('')}</span>`;statusEl.classList.toggle('win',found===6)}
+function render(openedIndex=-1){board.innerHTML='';cards.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.className='card'+(c.seen?' seen':'')+(c.open?' open':'')+(c.matched?' matched':'')+(i===openedIndex?' just-opened':'');b.dataset.index=i;
+ const label=c.role==='task'?(c.type==='context'?c.taskContext:taskText(c)):c.type==='circle'?`Kreis: ${c.n} von ${c.d} gleich großen Kreissektoren gefärbt`:c.type==='area'?`${c.n} von ${c.d} gleich großen Teilflächen gefärbt`:c.type==='line'?`Zahlenstrahl von null bis eins mit ${c.d} gleich langen Abschnitten. Markierung beim ${c.n}. Teilstrich nach null.`:btoaSafe(content(c));
+ b.setAttribute('aria-label',c.open||c.matched?`Karte ${i+1}: ${label}${c.matched?', Paar gefunden':''}`:`Karte ${i+1}, verdeckt${c.seen?', schon angesehen':''}`);b.innerHTML=c.open||c.matched?`<span class="face">${content(c)}</span>`:'<span class="back" aria-hidden="true"><span class="back-title"><span>Bruch-</span><span>Memory</span></span></span>';b.setAttribute('aria-disabled',String(c.matched));board.appendChild(b)});update()}
+function btoaSafe(s){return s.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()}
+function play(i){
+ if(locked){selected.forEach(j=>cards[j].open=false);selected=[];locked=false;statusEl.textContent='Weiter geht’s: Decke zwei Karten auf.';render();return}
+ const c=cards[i];if(c.matched||c.open)return;c.open=true;selected.push(i);
+ if(selected.length===1){statusEl.textContent='Wähle die zweite Karte.';render(i);return}
+ attempts++;const[a,b]=selected.map(j=>cards[j]);if(a.pair===b.pair){a.matched=b.matched=true;found++;selected=[];statusEl.textContent=found===6?`Geschafft! Du hast alle 6 Paare in ${attempts} Versuchen gefunden. Lust auf eine neue Runde?`:'Das passt! Suche das nächste Paar.'}else{a.seen=b.seen=true;locked=true;statusEl.textContent='Diese Karten passen nicht zusammen. Tippe auf das Spielfeld, um sie wieder umzudrehen.'}render(i);
+}
+function newGame(){
+ cards=[];selected=[];attempts=found=0;locked=false;
+ const pro=level==='pro',keys=new Set(),pools={easy:{'+':candidates(false,'+'),'-':candidates(false,'-')},hard:{'+':candidates(true,'+'),'-':candidates(true,'-')}};
+ const easyCount=pro?2+Math.floor(Math.random()*5):6;
+ const difficulties=shuffle(Array.from({length:6},(_,i)=>i<easyCount?'easy':'hard'));
+ const operations=shuffle(['+','+','+','-','-','-']);
+ const tasks=shuffle([...taskTypes]),results=shuffle([...types]);
+ for(let pair=0;pair<6;pair++){
+  const op=operations[pair],difficulty=difficulties[pair];let c;do{c=pools[difficulty][op].pop()}while(c&&keys.has(c.key));
+  if(!c)throw Error('Keine eindeutige Aufgabe verfügbar');keys.add(c.key);
+  const shared={...c,pair,open:false,seen:false,matched:false};
+  cards.push({...shared,role:'task',type:tasks[pair],taskContext:makeContext(c)});
+ const suitableContexts=contexts.filter((_,i)=>i!==4||c.d>=10);
+ const context=suitableContexts[Math.floor(Math.random()*suitableContexts.length)](c.n,c.d);
+  cards.push({...shared,role:'result',type:results[pair],context});
+ }
+shuffle(cards);document.getElementById('levelHint').textContent=pro?'Profi: Mindestens 2 Aufgaben sind wie in Basis, mit gleichen Nennern auch beim Ergebnis. Bei Aufgaben mit ungleichen Nennern sind die Ergebnisse vollständig gekürzt. Nutze einen Schmierzettel.':'Basis: Innerhalb jedes Paares haben beide Brüche und das Ergebnis denselben Nenner. Kürzen ist nicht nötig.';
+ statusEl.textContent='Los geht’s! Finde zu jeder Aufgabe das Ergebnis.';render();
+}
+document.querySelectorAll('input[name="level"]').forEach(input=>input.addEventListener('change',()=>{level=input.value;newGame()}));
+board.addEventListener('click',e=>{const card=e.target.closest('button');if(card)play(Number(card.dataset.index));else if(locked)play(0)});
+document.getElementById('new').addEventListener('click',newGame);newGame();
+</script>
+</html>
+
+
+
+
