@@ -21,6 +21,15 @@ header{text-align:center}header p{margin:10px auto}.eyebrow{color:#58716d}h1{col
 .player.active{color:#fff;border-color:transparent;box-shadow:0 0 0 3px #fff,0 3px 10px #173e4530}
 .player.green.active{background:#248455}
 .player.blue.active{background:#236fc1}
+.whole-images{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.whole-note{display:block;font-size:9px;line-height:1.3;margin-top:5px;font-weight:500}
+/* Grün gegen Blau: ein gemeinsamer Duell-Look für alle verdeckten Karten. */
+body[data-mode="duo"]{background:radial-gradient(ellipse at 0% 15%,#d4eadb 0,transparent 55%),radial-gradient(ellipse at 100% 85%,#d3e3f7 0,transparent 55%),#edf2ee}
+body[data-mode="duo"] .board{background:linear-gradient(120deg,#d1e3d5,#d3dfed);border-color:#acc4c2;outline:1px solid #fff;outline-offset:3px}
+body[data-mode="duo"] .card:not(.open):not(.matched){background-color:#214651;background-image:repeating-linear-gradient(45deg,transparent 0 10px,#ffffff0b 10px 12px),linear-gradient(135deg,#286448 0%,#214651 50%,#255a89 100%)}
+body[data-mode="duo"] .card:not(.open):not(.matched):before{border-style:double;border-width:3px;border-color:#d9e9e0a8}
+body[data-mode="duo"] .back-title{background:#173e45b3;box-shadow:-3px 0 0 2px #62b48770,3px 0 0 2px #70a7df70}
+body[data-mode="duo"] .players{position:relative;gap:22px;align-items:stretch}
+body[data-mode="duo"] .players:after{content:'VS';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#f5f3eb;color:#496166;border:1px solid #cbd9cf;border-radius:50%;width:25px;height:25px;display:grid;place-items:center;font-size:9px;font-weight:900}
 </style>
 <main>
 <header><div class="eyebrow">Mathematik · Klasse 7</div><h1>Bruch-Memory</h1><p>Ein Bruch. Zwei Gesichter. Finde die 6 passenden Paare!</p></header>
@@ -53,6 +62,7 @@ let cards=[],selected=[],attempts=0,found=0,locked=false;
 let mode='solo',currentPlayer=0,scores=[0,0];
 function turnText(){return mode==='duo'?`Spieler ${currentPlayer===0?'Grün':'Blau'} ist am Zug.`:''}
 function updatePlayers(){
+ document.body.dataset.mode=mode;
  const panel=document.getElementById('players');panel.hidden=mode!=='duo';
  panel.innerHTML=['Grün','Blau'].map((name,i)=>`<div class="player ${i===0?'green':'blue'}${found<6&&currentPlayer===i?' active':''}">${name}: ${scores[i]} ${scores[i]===1?'Paar':'Paare'}${found<6&&currentPlayer===i?' · Am Zug':''}</div>`).join('');
 }
@@ -61,6 +71,10 @@ function gcd(a,b){return b?gcd(b,a%b):a}
 function capital(s){return s[0].toUpperCase()+s.slice(1)}
 function word(n){return n===1?'ein':numbers[n]}
 function visual(n,d,type){
+ if(n>d&&(type==='circle'||type==='area')){
+  let shapes='';for(let k=0;k<Math.ceil(n/d);k++)shapes+=visual(Math.min(d,n-k*d),d,type);
+  return '<span class="whole-images">'+shapes+'</span><span class="whole-note">Jede Form = 1 Ganzes</span>';
+ }
  if(type==='circle'){
   let sectors='';
   for(let i=0;i<d;i++){
@@ -74,21 +88,23 @@ function visual(n,d,type){
   let shapes='';for(let i=0;i<d;i++)shapes+=`<rect x="${8+i*184/d}" y="20" width="${184/d}" height="72" fill="${i<n?'#318b91':'#edf0e9'}" stroke="#173e45" stroke-width="1.2"/>`;
   return `<svg viewBox="0 0 200 112" aria-hidden="true">${shapes}</svg>`;
  }
- let ticks='';for(let i=0;i<=d;i++){const x=14+i*172/d;ticks+=`<path d="M${x} 42v16" stroke="#526267" stroke-width="1.5"/>`}
- return `<svg viewBox="0 0 200 100" aria-hidden="true"><path d="M14 50H186" stroke="#173e45" stroke-width="2"/>${ticks}<circle cx="${14+n*172/d}" cy="50" r="6" fill="#247f88"/><text x="14" y="83" text-anchor="middle" font-size="21" fill="#173e45">0</text><text x="186" y="83" text-anchor="middle" font-size="21" fill="#173e45">1</text></svg>`;
+ const end=Math.max(1,Math.ceil(n/d)),count=end*d;
+ let ticks='';for(let i=0;i<=count;i++){const x=14+i*172/count;ticks+=`<path d="M${x} 42v16" stroke="#526267" stroke-width="1.5"/>`}
+ let labels='';for(let i=0;i<=end;i++)labels+=`<text x="${14+i*172/end}" y="83" text-anchor="middle" font-size="21" fill="#173e45">${i}</text>`;
+ return `<svg viewBox="0 0 200 100" aria-hidden="true"><path d="M14 50H186" stroke="#173e45" stroke-width="2"/>${ticks}<circle cx="${14+n*172/count}" cy="50" r="6" fill="#247f88"/>${labels}</svg>`;
 }
 function content(c){const{n,d,type}=c;switch(type){
  case'fraction':return `<span class="fraction"><span>${n}</span><span>${d}</span></span>`;
  case'area':case'circle':case'line':return visual(n,d,type);
  case'division':return `<span class="division">${n} : ${d}</span>`;
  case'words':return `${capital(word(n))} ${denominators[d]}`;
- case'parts':return `${capital(numbers[n])} von ${numbers[d]} gleich großen Teilen`;
- case'short':return `${capital(numbers[n])} von ${numbers[d]}`;
+ case'parts':return n>d?`${capital(numbers[n])} Teile, jedes ist ein ${denominators[d]} groß`:`${capital(numbers[n])} von ${numbers[d]} gleich großen Teilen`;
+ case'short':return n>d?`${capital(word(n))} ${denominators[d]}`:`${capital(numbers[n])} von ${numbers[d]}`;
  case'context':return `<span class="context">${c.context}</span>`;
 }}
 function update(){stats.innerHTML=`<span>${found} / 6 Paare · ${attempts} ${attempts===1?'Versuch':'Versuche'}</span><span class="progress" aria-hidden="true">${Array.from({length:6},(_,i)=>`<i class="${i<found?'done':''}"></i>`).join('')}</span>`;statusEl.classList.toggle('win',found===6)}
 function render(openedIndex=-1){updatePlayers();board.innerHTML='';cards.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.className='card'+(c.seen?' seen':'')+(c.open?' open':'')+(c.matched?' matched':'')+(c.matched&&mode==='duo'?(c.owner===0?' player-green':' player-blue'):'')+(i===openedIndex?' just-opened':'');b.dataset.index=i;
- const label=c.type==='circle'?`Kreis: ${c.n} von ${c.d} gleich großen Kreissektoren gefärbt`:c.type==='area'?`${c.n} von ${c.d} gleich großen Teilflächen gefärbt`:c.type==='line'?`Zahlenstrahl von null bis eins mit ${c.d} gleich langen Abschnitten. Markierung beim ${c.n}. Teilstrich nach null.`:btoaSafe(content(c));
+ const label=c.type==='circle'||c.type==='area'?`${c.n} gefärbte Teile der Größe ein ${denominators[c.d]}. Jede Form stellt ein Ganzes dar.`:c.type==='line'?`Zahlenstrahl von null bis ${Math.max(1,Math.ceil(c.n/c.d))}. Jede Einheit hat ${c.d} gleich lange Abschnitte. Markierung beim ${c.n}. Teilstrich nach null.`:btoaSafe(content(c));
  b.setAttribute('aria-label',c.open||c.matched?`Karte ${i+1}: ${label}${c.matched?', Paar gefunden':''}`:`Karte ${i+1}, verdeckt${c.seen?', schon angesehen':''}`);b.innerHTML=c.open||c.matched?`<span class="face">${content(c)}</span>`:'<span class="back" aria-hidden="true"><span class="back-title"><span>Bruch-</span><span>Memory</span></span></span>';b.setAttribute('aria-disabled',String(c.matched));board.appendChild(b)});update()}
 function btoaSafe(s){return s.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()}
 function play(i){
@@ -105,12 +121,17 @@ function play(i){
   statusEl.textContent='Diese Karten passen nicht zusammen. '+turnText()+' Tippe auf das Spielfeld, um sie wieder umzudrehen.';
  }render(i);
 }
-function newGame(){cards=[];selected=[];attempts=found=0;locked=false;currentPlayer=0;scores=[0,0];const keys=new Set();const largePair=Math.random()<.35?Math.floor(Math.random()*6):-1;const typePool=shuffle([...types,...types]);
+function newGame(){cards=[];selected=[];attempts=found=0;locked=false;currentPlayer=0;scores=[0,0];const keys=new Set();const improperPair=Math.floor(Math.random()*6);const largePair=Math.random()<.35?Math.floor(Math.random()*6):-1;const typePool=shuffle([...types,...types]);
  for(let pair=0;pair<6;pair++){
- let n,d,key;do{d=pair===largePair?11+Math.floor(Math.random()*10):2+Math.floor(Math.random()*8);n=1+Math.floor(Math.random()*(d-1));const g=gcd(n,d);key=`${n/g}/${d/g}`}while(keys.has(key));keys.add(key);
+ let n,d,key;do{d=pair===improperPair?2+Math.floor(Math.random()*9):pair===largePair?11+Math.floor(Math.random()*10):2+Math.floor(Math.random()*8);n=pair===improperPair?d+1+Math.floor(Math.random()*d):1+Math.floor(Math.random()*(d-1));const g=gcd(n,d);key=`${n/g}/${d/g}`}while(keys.has(key));keys.add(key);
  let t1=typePool.pop(),t2=typePool.pop();if(t1===t2){const other=typePool.findIndex(t=>t!==t1);[t2,typePool[other]]=[typePool[other],t2]}
  for(const type of[t1,t2]){
-  const suitableContexts=d>=10?contexts:contexts.filter((_,i)=>i!==4);
+  const improperContexts=[
+   (n,d)=>`Jede Pizza hat ${d} gleich große Stücke. Ich nehme insgesamt ${n} Stücke. Wie viel Pizza ist das?`,
+   (n,d)=>`Jeder Kuchen hat ${d} gleich große Stücke. Auf dem Teller liegen ${n} Stücke. Wie viel Kuchen ist das?`,
+   (n,d)=>`Ein Meter Band besteht aus ${d} gleich langen Teilen. Ich lege ${n} solcher Teile aneinander. Wie viele Meter sind das?`
+  ];
+  const suitableContexts=n>d?improperContexts:d>=10?contexts:contexts.filter((_,i)=>i!==4);
   const context=type==='context'?suitableContexts[Math.floor(Math.random()*suitableContexts.length)](n,d):'';
   cards.push({n,d,type,pair,context,open:false,seen:false,matched:false});
  }
@@ -121,6 +142,7 @@ document.querySelectorAll('input[name="mode"]').forEach(input=>input.addEventLis
 document.getElementById('new').addEventListener('click',newGame);newGame();
 </script>
 </html>
+
 
 
 
