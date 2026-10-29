@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173f71">
+<title>Touch-Whiteboard</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{font-family:system-ui,-apple-system,sans-serif;color:#193552;background:#edf3fa;display:flex;flex-direction:column;height:100vh;height:100dvh}header{flex:none;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;border-bottom:1px solid #cad9e9;background:#f4f8fd}h1{font-size:17px;letter-spacing:-.025em;margin:0 0 10px}.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:10px 13px;border:1px solid #b9cde2;border-radius:11px;background:#fff;color:#284d77;font:700 13px system-ui;cursor:pointer;touch-action:manipulation}button[aria-pressed="true"]{background:#205b91;color:white;border-color:#205b91;box-shadow:0 2px 5px #19355220}.clear{margin-left:auto;color:#a02e3a;border-color:#e5c3c8}.icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.size{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:650;padding:5px 1px}.size input{width:100px;min-height:36px;accent-color:#205b91}.size output{font-variant-numeric:tabular-nums;min-width:32px;font-weight:500}.surface{position:relative;flex:1;min-height:0;margin:10px 10px calc(10px + env(safe-area-inset-bottom));background:white;border:1px solid #ccdbea;border-radius:14px;overflow:hidden;box-shadow:0 3px 10px #19355208;touch-action:none;overscroll-behavior:contain;user-select:none;-webkit-user-select:none}canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}.hint{position:absolute;top:18px;left:18px;right:18px;pointer-events:none;color:#8397ad;font-size:14px;line-height:1.6}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}:focus-visible{outline:3px solid #dc9b28;outline-offset:3px}@media(orientation:landscape) and (max-height:500px){header{padding-top:6px;padding-bottom:6px;display:flex;align-items:center;gap:12px}h1{font-size:14px;margin:0}.toolbar{flex:1;gap:6px}button{min-height:42px;padding:8px 11px}.size input{width:70px}.surface{margin-top:6px}}@media(max-width:370px){button{padding:10px;font-size:12px}.toolbar{gap:6px}.size input{width:80px}}
+</style>
+</head>
+<body>
+<header><h1>Mein Whiteboard</h1><div class="toolbar" role="group" aria-label="Zeichenwerkzeuge">
+<button id="pen" aria-pressed="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-1 5 5-1L21 7l-4-4L4 16ZM14 6l4 4"/></svg>Stift</button>
+<button id="eraser" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 13 9-10 9 8-9 10H8l-4-4a3 3 0 0 1 0-4ZM9 8l9 8M12 21h10"/></svg>Radierer</button>
+<button id="clear" class="clear"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></svg>Alles löschen</button>
+<label class="size" for="size"><span id="sizeLabel">Stiftgröße</span><input id="size" type="range" min="1" max="12" value="3"><output id="sizeValue" for="size">3 px</output></label>
+</div></header>
+<main class="surface" id="surface"><canvas id="board" aria-label="Whiteboard: Mit Finger, Stift oder Maus zeichnen. Die Zeichnung bleibt nur bis zum Schließen oder Neuladen der Seite erhalten."></canvas><div class="hint" id="hint">Hier kannst du mit dem Finger<br>oder einem Stift schreiben.</div></main>
+<div id="status" class="sr-only" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+const canvas=document.getElementById('board'),ctx=canvas.getContext('2d'),surface=document.getElementById('surface');
+const slider=document.getElementById('size'),hint=document.getElementById('hint');
+let tool='pen',sizes={pen:3,eraser:28},strokes=[],active=null,pointer=null,scale=1,viewport={width:1,height:1};
+function configure(){ctx.lineCap='round';ctx.lineJoin='round'}
+function paintStroke(s){
+ const points=s.points;if(!points.length)return;
+ ctx.save();ctx.globalCompositeOperation=s.tool==='eraser'?'destination-out':'source-over';ctx.strokeStyle=ctx.fillStyle='#193552';ctx.lineWidth=s.size*scale;
+ if(points.length===1){ctx.beginPath();ctx.arc(points[0].x*scale,points[0].y*scale,s.size*scale/2,0,Math.PI*2);ctx.fill()}
+ else{ctx.beginPath();ctx.moveTo(points[0].x*scale,points[0].y*scale);for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x*scale,points[i].y*scale);ctx.stroke()}
+ ctx.restore();
+}
+function resize(){
+ finish();const width=Math.max(1,surface.clientWidth),height=Math.max(1,surface.clientHeight);
+ if(!strokes.length){viewport={width,height};scale=1}else{scale=Math.min(width/viewport.width,height/viewport.height);viewport={width:width/scale,height:height/scale}}
+ const ratio=window.devicePixelRatio||1;canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);configure();ctx.clearRect(0,0,width,height);for(const s of strokes)paintStroke(s);
+}
+function position(e){const rect=canvas.getBoundingClientRect();return{x:(e.clientX-rect.left)/scale,y:(e.clientY-rect.top)/scale}}
+function start(e){
+ if(pointer!==null||e.isPrimary===false||(e.pointerType==='mouse'&&e.button!==0))return;
+ e.preventDefault();pointer=e.pointerId;canvas.setPointerCapture(pointer);active={tool,size:sizes[tool]/scale,points:[position(e)]};strokes.push(active);hint.hidden=true;paintStroke(active);
+}
+function move(e){
+ if(e.pointerId!==pointer||!active)return;e.preventDefault();
+ const events=e.getCoalescedEvents?e.getCoalescedEvents():[e];
+ for(const p of events.length?events:[e]){const next=position(p),last=active.points[active.points.length-1];active.points.push(next);paintStroke({tool:active.tool,size:active.size,points:[last,next]})}
+}
+function finish(e){if(e&&e.pointerId!==pointer)return;if(pointer!==null&&canvas.hasPointerCapture(pointer))canvas.releasePointerCapture(pointer);active=null;pointer=null}
+function selectTool(next){finish();tool=next;document.getElementById('pen').setAttribute('aria-pressed',String(tool==='pen'));document.getElementById('eraser').setAttribute('aria-pressed',String(tool==='eraser'));slider.min=tool==='pen'?1:10;slider.max=tool==='pen'?12:70;slider.value=sizes[tool];document.getElementById('sizeLabel').textContent=tool==='pen'?'Stiftgröße':'Radiergröße';document.getElementById('sizeValue').textContent=sizes[tool]+' px';canvas.style.cursor=tool==='pen'?'crosshair':'cell';document.getElementById('status').textContent=tool==='pen'?'Stift ausgewählt':'Radiergummi ausgewählt'}
+document.getElementById('pen').addEventListener('click',()=>selectTool('pen'));
+document.getElementById('eraser').addEventListener('click',()=>selectTool('eraser'));
+slider.addEventListener('input',()=>{sizes[tool]=Number(slider.value);document.getElementById('sizeValue').textContent=slider.value+' px'});
+document.getElementById('clear').addEventListener('click',()=>{finish();strokes=[];hint.hidden=false;resize();document.getElementById('status').textContent='Whiteboard gelöscht'});
+canvas.addEventListener('pointerdown',start);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);canvas.addEventListener('lostpointercapture',finish);
+new ResizeObserver(resize).observe(surface);
+</script>
+</body></html>
