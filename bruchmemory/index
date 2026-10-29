@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#173e45">
+<title>Bruch-Memory</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f3eb;color:#173e45;font-family:system-ui,-apple-system,sans-serif}main{max-width:760px;margin:auto;padding:24px 12px 32px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800}h1{font-size:clamp(29px,7vw,44px);margin:6px 0 10px;letter-spacing:-.04em}p{line-height:1.5;margin:8px 0}header p{max-width:580px;font-size:14px;color:#496166}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:20px 0 12px}.stats{font-weight:750;font-size:13px}.new{border:0;border-radius:12px;background:#173e45;color:white;padding:13px 15px;font:700 13px system-ui;cursor:pointer;min-height:46px}.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.card{position:relative;min-width:0;min-height:140px;aspect-ratio:0.7;border:3px solid transparent;border-radius:14px;background:#24565e;color:#fff;box-shadow:0 3px 0 #00000012;cursor:pointer;padding:8px 5px;font-family:inherit;touch-action:manipulation;overflow-wrap:anywhere;display:flex;align-items:center;justify-content:center}.card:focus-visible,.new:focus-visible{outline:3px solid #d79019;outline-offset:3px}.back{font-size:32px;font-weight:500;opacity:.8}.card.open,.card.matched{background:#fffdf8;color:#173e45}.card.seen{border-color:#ce4b4b}.card.matched{border-color:#248455;background:#eff9ef;cursor:default}.face{width:100%;font-size:clamp(11px,2.7vw,17px);line-height:1.35;font-weight:600}.context{font-size:clamp(10px,2.45vw,14px);font-weight:500}.fraction{display:inline-flex;flex-direction:column;align-items:center;font-size:clamp(27px,6vw,44px);line-height:1.15;font-weight:600}.fraction span:first-child{border-bottom:2px solid;padding:0 8px 3px}.fraction span:last-child{padding-top:3px}.division{font-size:clamp(21px,5vw,34px)}svg{width:100%;height:auto;display:block}.status{min-height:52px;margin-top:16px;font-size:14px;font-weight:650}.legend{font-size:12px;color:#526267;display:flex;gap:14px;flex-wrap:wrap}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}.help{margin-top:20px;border-top:1px solid #d9ded6;padding-top:14px;font-size:12px;color:#526267}@media(min-width:600px){main{padding:36px 24px}.board{gap:12px}.card{aspect-ratio:.9;min-height:155px;padding:12px}.face{font-size:18px}.context{font-size:15px}}@media(prefers-reduced-motion:no-preference){.card{transition:background .15s,border-color .15s,transform .15s}.card:active{transform:scale(.97)}}
+/* Spieltisch und Karten */
+body{background:radial-gradient(ellipse at 15% 0%,#fff3ca 0,transparent 50%),radial-gradient(ellipse at 100% 80%,#cfe7df 0,transparent 45%),#f5f3eb;min-height:100vh}
+header{text-align:center}header p{margin:10px auto}.eyebrow{color:#58716d}h1{color:#173e45}
+.toolbar{background:#ffffffa8;padding:10px 12px;border-radius:18px;border:1px solid #fff;box-shadow:0 4px 18px #173e4508}.stats{display:flex;flex-direction:column;gap:6px}.progress{display:flex;gap:4px}.progress i{width:16px;height:6px;border-radius:8px;background:#d8e2da}.progress i.done{background:#248455}.new{background:#f8c85c;color:#263f3f;box-shadow:0 3px 0 #d9a840}.new:active{transform:translateY(2px);box-shadow:0 1px 0 #d9a840}
+.board{padding:10px;background:#dce6dd;border:1px solid #cbd9cf;border-radius:22px;box-shadow:inset 0 2px 5px #173e4510,0 10px 30px #173e4508;gap:9px}
+.card{border-color:#fff9e7;border-radius:12px;background-color:#24565e;background-image:repeating-linear-gradient(45deg,transparent 0 10px,#ffffff08 10px 12px),repeating-linear-gradient(-45deg,transparent 0 10px,#ffffff08 10px 12px);box-shadow:0 4px 0 #163d4540,0 5px 8px #173e4514;padding:8px 5px}
+.card:before{content:'';position:absolute;inset:5px;border:1px solid #ffffff50;border-radius:6px;pointer-events:none}.back{display:flex;flex-direction:column;align-items:center;gap:8px;opacity:1}.back-symbol{display:grid;place-items:center;width:40px;height:40px;border:1px solid #edda9c;border-radius:50%;background:#173e4580;color:#f8dc91;font-size:28px;font-weight:700;box-shadow:0 0 0 4px #ffffff08}.back-label{font-size:8px;font-weight:800;letter-spacing:.14em;color:#f6e9bf;text-transform:uppercase}
+.card.open,.card.matched{background-image:none}.card.open:before,.card.matched:before{border-color:#173e4510}.card.seen{border-color:#ce4b4b;box-shadow:0 4px 0 #a8303040,0 5px 8px #173e4514}.card.matched{border-color:#248455;box-shadow:0 4px 0 #24845540,0 5px 8px #173e4514}.card.matched:after{content:'✓';position:absolute;right:5px;top:4px;color:#248455;font-size:13px;font-weight:900}.face{position:relative;z-index:1}.status{text-align:center;background:#ffffff96;border-radius:14px;padding:12px;margin:16px 0 12px;min-height:64px}.status.win{background:#e0f3dd;color:#21653c;border:1px solid #9fcca5}.legend{justify-content:center}.help{text-align:center;margin-top:16px}
+@media(min-width:600px){.board{padding:16px;gap:14px}.card{border-radius:15px}.card:before{inset:7px;border-radius:8px}.back-symbol{width:58px;height:58px;font-size:36px}.back-label{font-size:11px}.progress i{width:22px}}
+@media(prefers-reduced-motion:no-preference){.card.just-opened{animation:pair-found .35s ease-out}@keyframes pair-found{50%{transform:scale(1.035)}}}
+.back-title{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:clamp(48px,14vw,86px);aspect-ratio:1;border:1px solid #edda9c;border-radius:50%;background:#173e4580;color:#f8dc91;box-shadow:0 0 0 4px #ffffff08;font-size:clamp(10px,2.7vw,17px);font-weight:800;letter-spacing:.01em;line-height:1.2}.back-title span:last-child{font-size:.66em;letter-spacing:.09em;text-transform:uppercase}
+</style>
+<main>
+<header><div class="eyebrow">Mathematik · Klasse 7</div><h1>Bruch-Memory</h1><p>Ein Bruch. Zwei Gesichter. Finde die 6 passenden Paare!</p></header>
+<div class="toolbar"><div class="stats" id="stats"></div><button class="new" id="new">↻ Neues Memory</button></div>
+<section class="board" id="board" aria-label="Memory mit zwölf Karten"></section>
+<p class="status" id="status" role="status" aria-live="polite"></p>
+<div class="legend"><span><i class="dot" style="background:#ce4b4b"></i>Schon angesehen</span><span><i class="dot" style="background:#248455"></i>Paar gefunden</span></div>
+<p class="help">Tippe auf zwei Karten. Bei einem Fehlversuch bleiben sie offen, bis du ein weiteres Mal auf das Spielfeld tippst. Danach bleiben die roten Ränder als Merkhilfe sichtbar. Du spielst ohne Zeitdruck.</p>
+</main>
+<script>
+'use strict';
+const board=document.getElementById('board'),statusEl=document.getElementById('status'),stats=document.getElementById('stats');
+const numbers=['null','eins','zwei','drei','vier','fünf','sechs','sieben','acht','neun','zehn','elf','zwölf','dreizehn','vierzehn','fünfzehn','sechzehn','siebzehn','achtzehn','neunzehn','zwanzig'];
+const denominators=['','','Halbe','Drittel','Viertel','Fünftel','Sechstel','Siebtel','Achtel','Neuntel','Zehntel','Elftel','Zwölftel','Dreizehntel','Vierzehntel','Fünfzehntel','Sechzehntel','Siebzehntel','Achtzehntel','Neunzehntel','Zwanzigstel'];
+const types=['fraction','area','circle','line','division','words','parts','short','context'];
+const contexts=[
+ (n,d)=>`Eine Tafel Schokolade hat ${d} gleich große Teile. Davon nehme ich ${n}.`,
+ (n,d)=>`Eine Pizza ist in ${d} gleich große Stücke geteilt. Davon esse ich ${n}.`,
+ (n,d)=>`Ein Kuchen ist in ${d} gleich große Stücke geteilt. Davon liegen ${n} auf dem Teller.`,
+ (n,d)=>`In einem Beutel liegen ${d} Murmeln. Davon sind ${n} blau.`,
+ (n,d)=>`In einer Klasse sind ${d} Kinder. Davon kommen ${n} mit dem Fahrrad.`,
+ (n,d)=>`Ein Band ist in ${d} gleich lange Abschnitte geteilt. Davon färbe ich ${n} rot.`,
+ (n,d)=>`Ein Beet ist in ${d} gleich große Flächen geteilt. Auf ${n} davon wachsen Blumen.`,
+ (n,d)=>`Auf einem Tisch liegen ${d} Karten. Davon sind ${n} aufgedeckt.`,
+ (n,d)=>`Eine Strecke besteht aus ${d} gleich langen Etappen. Davon habe ich ${n} geschafft.`
+];
+let cards=[],selected=[],attempts=0,found=0,locked=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function gcd(a,b){return b?gcd(b,a%b):a}
+function capital(s){return s[0].toUpperCase()+s.slice(1)}
+function word(n){return n===1?'ein':numbers[n]}
+function visual(n,d,type){
+ if(type==='circle'){
+  let sectors='';
+  for(let i=0;i<d;i++){
+   const start=-Math.PI/2+i*2*Math.PI/d,end=-Math.PI/2+(i+1)*2*Math.PI/d;
+   const x1=100+88*Math.cos(start),y1=100+88*Math.sin(start),x2=100+88*Math.cos(end),y2=100+88*Math.sin(end);
+   sectors+=`<path d="M100 100 L${x1} ${y1} A88 88 0 0 1 ${x2} ${y2} Z" fill="${i<n?'#318b91':'#edf0e9'}" stroke="#173e45" stroke-width="1.5"/>`;
+  }
+  return `<svg viewBox="0 0 200 200" aria-hidden="true">${sectors}</svg>`;
+ }
+ if(type==='area'){
+  let shapes='';for(let i=0;i<d;i++)shapes+=`<rect x="${8+i*184/d}" y="20" width="${184/d}" height="72" fill="${i<n?'#318b91':'#edf0e9'}" stroke="#173e45" stroke-width="1.2"/>`;
+  return `<svg viewBox="0 0 200 112" aria-hidden="true">${shapes}</svg>`;
+ }
+ let ticks='';for(let i=0;i<=d;i++){const x=14+i*172/d;ticks+=`<path d="M${x} 42v16" stroke="#526267" stroke-width="1.5"/>`}
+ return `<svg viewBox="0 0 200 100" aria-hidden="true"><path d="M14 50H186" stroke="#173e45" stroke-width="2"/>${ticks}<circle cx="${14+n*172/d}" cy="50" r="6" fill="#247f88"/><text x="14" y="83" text-anchor="middle" font-size="21" fill="#173e45">0</text><text x="186" y="83" text-anchor="middle" font-size="21" fill="#173e45">1</text></svg>`;
+}
+function content(c){const{n,d,type}=c;switch(type){
+ case'fraction':return `<span class="fraction"><span>${n}</span><span>${d}</span></span>`;
+ case'area':case'circle':case'line':return visual(n,d,type);
+ case'division':return `<span class="division">${n} : ${d}</span>`;
+ case'words':return `${capital(word(n))} ${denominators[d]}`;
+ case'parts':return `${capital(numbers[n])} von ${numbers[d]} gleich großen Teilen`;
+ case'short':return `${capital(numbers[n])} von ${numbers[d]}`;
+ case'context':return `<span class="context">${c.context}</span>`;
+}}
+function update(){stats.innerHTML=`<span>${found} / 6 Paare · ${attempts} ${attempts===1?'Versuch':'Versuche'}</span><span class="progress" aria-hidden="true">${Array.from({length:6},(_,i)=>`<i class="${i<found?'done':''}"></i>`).join('')}</span>`;statusEl.classList.toggle('win',found===6)}
+function render(openedIndex=-1){board.innerHTML='';cards.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.className='card'+(c.seen?' seen':'')+(c.open?' open':'')+(c.matched?' matched':'')+(i===openedIndex?' just-opened':'');b.dataset.index=i;
+ const label=c.type==='circle'?`Kreis: ${c.n} von ${c.d} gleich großen Kreissektoren gefärbt`:c.type==='area'?`${c.n} von ${c.d} gleich großen Teilflächen gefärbt`:c.type==='line'?`Zahlenstrahl von null bis eins mit ${c.d} gleich langen Abschnitten. Markierung beim ${c.n}. Teilstrich nach null.`:btoaSafe(content(c));
+ b.setAttribute('aria-label',c.open||c.matched?`Karte ${i+1}: ${label}${c.matched?', Paar gefunden':''}`:`Karte ${i+1}, verdeckt${c.seen?', schon angesehen':''}`);b.innerHTML=c.open||c.matched?`<span class="face">${content(c)}</span>`:'<span class="back" aria-hidden="true"><span class="back-title"><span>Bruch-</span><span>Memory</span></span></span>';b.setAttribute('aria-disabled',String(c.matched));board.appendChild(b)});update()}
+function btoaSafe(s){return s.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()}
+function play(i){
+ if(locked){selected.forEach(j=>cards[j].open=false);selected=[];locked=false;statusEl.textContent='Weiter geht’s: Decke zwei Karten auf.';render();return}
+ const c=cards[i];if(c.matched||c.open)return;c.open=true;selected.push(i);
+ if(selected.length===1){statusEl.textContent='Wähle die zweite Karte.';render(i);return}
+ attempts++;const[a,b]=selected.map(j=>cards[j]);if(a.pair===b.pair){a.matched=b.matched=true;found++;selected=[];statusEl.textContent=found===6?`Geschafft! Du hast alle 6 Paare in ${attempts} Versuchen gefunden. Lust auf eine neue Runde?`:'Das passt! Suche das nächste Paar.'}else{a.seen=b.seen=true;locked=true;statusEl.textContent='Diese Karten passen nicht zusammen. Tippe auf das Spielfeld, um sie wieder umzudrehen.'}render(i);
+}
+function newGame(){cards=[];selected=[];attempts=found=0;locked=false;const keys=new Set();const largePair=Math.random()<.35?Math.floor(Math.random()*6):-1;const typePool=shuffle([...types,...types]);
+ for(let pair=0;pair<6;pair++){
+ let n,d,key;do{d=pair===largePair?11+Math.floor(Math.random()*10):2+Math.floor(Math.random()*8);n=1+Math.floor(Math.random()*(d-1));const g=gcd(n,d);key=`${n/g}/${d/g}`}while(keys.has(key));keys.add(key);
+ let t1=typePool.pop(),t2=typePool.pop();if(t1===t2){const other=typePool.findIndex(t=>t!==t1);[t2,typePool[other]]=[typePool[other],t2]}
+ for(const type of[t1,t2]){
+  const suitableContexts=d>=10?contexts:contexts.filter((_,i)=>i!==4);
+  const context=type==='context'?suitableContexts[Math.floor(Math.random()*suitableContexts.length)](n,d):'';
+  cards.push({n,d,type,pair,context,open:false,seen:false,matched:false});
+ }
+ }shuffle(cards);statusEl.textContent='Los geht’s! Decke zwei Karten auf.';render();
+}
+board.addEventListener('click',e=>{const card=e.target.closest('button');if(card)play(Number(card.dataset.index));else if(locked)play(0)});
+document.getElementById('new').addEventListener('click',newGame);newGame();
+</script>
+</html>
+
+
+
