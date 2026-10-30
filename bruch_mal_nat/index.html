@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#205b88"><title>Brüche multiplizieren · Übungstrainer</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#dceaff,transparent 65%),#f3f6fb;color:#203d58;font-family:system-ui,-apple-system,sans-serif}main{max-width:620px;margin:auto;padding:22px 14px 36px}h1{font-size:29px;letter-spacing:-.04em;margin:7px 0}p{line-height:1.5}.eyebrow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#587b98}.intro,.note{font-size:13px;color:#5e768c}.panel{background:white;border:1px solid #d3e0ed;border-radius:17px;padding:17px;margin:14px 0}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:700}.equation{display:flex;align-items:center;justify-content:center;gap:15px;font-size:36px;margin:20px 0}.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15;vertical-align:middle}.frac span:first-child{border-bottom:2px solid;padding:0 9px 4px}.frac span:last-child{padding-top:4px}button{min-height:44px;border:1px solid #b9cddd;border-radius:10px;background:#edf4fb;color:#205b88;padding:10px 13px;font:700 13px system-ui;cursor:pointer}button.primary,button[aria-pressed="true"]{background:#205b88;color:#fff;border-color:#205b88}button:disabled{opacity:.45;cursor:default}.actions{display:flex;flex-wrap:wrap;gap:8px}.preview{display:flex;align-items:center;justify-content:center;gap:15px;font-size:25px;margin:13px 0}.printed{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1}.printed input{width:96px;text-align:center;font:600 30px system-ui;color:#203d58;border:1px solid #c9d8e6;background:#f6f9fd;border-radius:8px;padding:8px}.printed hr{width:110px;border:0;border-top:2px solid #203d58;margin:7px}.status{font-size:14px;min-height:42px;padding:10px 0;font-weight:650}.status.correct{color:#237647}.status.wrong{color:#a83d3d}h2{font-size:17px;margin:0 0 10px}.actions button{flex:1}.note{margin:10px 0 0}.solution{font-size:14px;line-height:1.6}summary{cursor:pointer;font-size:13px;font-weight:650;padding:7px 0}:focus-visible{outline:3px solid #d89b30;outline-offset:3px}[hidden]{display:none!important}@media(max-width:380px){button{padding:10px;font-size:12px}}
+.task-expression{display:inline-flex;align-items:center;gap:12px}.equation{gap:12px}.printed input{width:90px;min-height:49px}.printed input::placeholder{font-size:13px;font-weight:500;color:#71879b}.printed hr{width:100px}@media(max-width:380px){.equation{font-size:29px;gap:8px}.task-expression{gap:8px}.printed input{width:76px;font-size:27px}.printed hr{width:84px}}
+.equation{flex-wrap:wrap;row-gap:18px}.extra-steps{display:contents}.conversion{display:inline-flex;align-items:center;gap:10px}.conversion-body{display:flex;flex-direction:column;align-items:center;gap:8px}.conversion-hint{font-size:11px;font-weight:750;color:#205b88;background:#e7f1fc;border-radius:8px;padding:6px 8px;max-width:180px;line-height:1.35;text-align:center}.whole-input{width:76px;min-height:50px;text-align:center;font:600 28px system-ui;color:#203d58;background:#f6f9fd;border:1px solid #c9d8e6;border-radius:8px;padding:8px}.mixed-entry{display:inline-flex;align-items:center;gap:8px}.conversion .printed input{width:76px}.conversion .printed hr{width:84px}
+.equation{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;gap:12px;padding:78px 4px 14px;margin-top:5px;align-items:center;scroll-padding:12px}
+.equation>*{flex-shrink:0}
+.frac,.printed{display:inline-grid;grid-template-rows:49px 2px 49px;row-gap:7px;justify-items:center;align-items:center;height:114px;flex-shrink:0}
+.frac:before{content:'';grid-row:2;grid-column:1;width:100%;height:2px;background:currentColor}
+.frac span:first-child{grid-row:1;grid-column:1;border:0;padding:0 9px}
+.frac span:last-child{grid-row:3;grid-column:1;padding:0 9px}
+.printed input{height:49px;min-height:49px;max-height:49px;padding:5px 8px}
+.printed input:first-child{grid-row:1;grid-column:1}
+.printed input:last-child{grid-row:3;grid-column:1}
+.printed hr{grid-row:2;grid-column:1;height:2px;margin:0;border:0;background:#203d58}
+.conversion-body{position:relative;display:flex;justify-content:center;align-items:center;height:114px;gap:0}
+.conversion-hint{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%);width:100%;min-width:80px;max-width:160px;padding:6px 4px;font-size:10px}
+.mixed-entry{height:114px;align-items:center}
+.whole-input{height:50px;min-height:50px}
+.scroll-note{font-size:11px;color:#5e768c;margin:0 0 12px}
+input:disabled{background:#e9edf2;color:#8795a3;border-style:dashed;cursor:not-allowed}input[aria-invalid="true"]{border:2px solid #c33e45;background:#fff0f0;box-shadow:0 0 0 2px #c33e4514}.entry-hint{font-size:12px;color:#5e768c;margin:0 0 10px}
+input[data-correct="true"]{border:2px solid #25844e;background:#eaf8ee;box-shadow:0 0 0 2px #25844e14}
+#new[data-ready="true"]{background:#248455;color:#fff;border-color:#1c7046;box-shadow:0 0 0 3px #24845525,0 0 18px #24845545}@media(prefers-reduced-motion:no-preference){#new{transition:background .2s,color .2s,box-shadow .2s}#new[data-ready="true"]{animation:next-ready .6s ease-out}@keyframes next-ready{50%{box-shadow:0 0 0 6px #24845525,0 0 25px #24845565}}}
+input[readonly]{cursor:default}
+#score{display:inline-flex;align-items:center;gap:10px;background:#eaf7ef;border:1px solid #b8ddc6;color:#22663f;padding:10px 14px;border-radius:12px;font-size:14px;margin-bottom:14px}#score strong{font-size:25px;line-height:1;font-variant-numeric:tabular-nums}#score small{display:block;font-size:11px;font-weight:500;margin-top:2px}
+.heading-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:9px 0 12px}.heading-row h1{flex:1;min-width:200px;margin:0}.heading-row #score{display:inline-flex;align-items:center;gap:9px;flex-shrink:0;margin:0;padding:11px 15px;border:1px solid #b5d0e8;border-radius:16px;background:linear-gradient(145deg,#ffffff,#e4f0fc);color:#205b88;box-shadow:0 3px 0 #b9d0e5,0 6px 14px #205b8810}.heading-row #score strong{font-size:29px;line-height:1}.heading-row #score>span:last-child{font-size:11px;font-weight:750;line-height:1.35}.heading-row #score small{font-size:10px;font-weight:500;color:#52738f;margin:0}.score-check{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#d2e9df;color:#24734f;font-size:15px;font-weight:800}
+dialog{width:min(420px,calc(100% - 32px));padding:24px;border:1px solid #c6d9eb;border-radius:18px;color:#203d58;background:#fff;box-shadow:0 18px 70px #16385830}dialog::backdrop{background:#102c4a80}dialog p{font-size:15px;margin:12px 0 20px}
+#help{background:#fff;border:1px solid #d3e0ed;border-radius:14px;padding:7px 15px}#help>summary{color:#205b88;padding:9px 0}.solution{padding-top:4px}.help-row{display:flex;align-items:flex-start;gap:11px;padding:13px 0;border-top:1px solid #e1eaf3}.help-number{flex:0 0 25px;height:25px;display:grid;place-items:center;background:#e7f1fc;border-radius:8px;color:#205b88;font-size:12px;font-weight:750}.help-row h3{font-size:14px;color:#205b88;margin:0 0 4px}.help-row p{margin:0;font-size:13px;color:#48647d;line-height:1.6}
+/* Spieloberfläche: Rechenkarte auf einem dunklen, gemusterten Spieltisch. */
+body{background-color:#172443;background-image:radial-gradient(ellipse at 0% 0%,#334b79 0,transparent 55%),radial-gradient(ellipse at 100% 70%,#234d63 0,transparent 55%),radial-gradient(#ffffff10 1px,transparent 1px);background-size:auto,auto,20px 20px;min-height:100vh;color:#203d58}
+main{max-width:760px;padding:30px 16px 36px}
+header{color:#f3f6ff;margin-bottom:23px}.eyebrow{color:#83e0cf;letter-spacing:.15em;font-size:10px}
+.heading-row{gap:14px;margin:12px 0}.heading-row h1{font-size:clamp(31px,7vw,45px);font-weight:850;line-height:1.05;letter-spacing:-.045em;min-width:185px}
+.intro{color:#c1cfe3;max-width:490px;font-size:14px}
+.heading-row #score{background:linear-gradient(145deg,#fff0bb,#f5cc6a);border:2px solid #ffe2a0;color:#543d1f;border-radius:17px;box-shadow:0 4px 0 #aa762d,0 8px 20px #0002;transform:rotate(2deg);padding:11px 13px}
+.heading-row #score strong{font-size:32px}.heading-row #score small{color:#71552e}.score-check{color:#73511c;background:#fff7dc;border:1px solid #d9b45d}
+.panel{border:2px solid #e3e9f2;border-radius:22px;background:#fffdf8;box-shadow:0 6px 0 #0d18335c,0 12px 28px #07152a20;padding:19px}
+.game-label{display:flex;align-items:center;gap:8px;margin:-1px 0 16px;font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.11em;color:#546789}.game-label:before{content:'×';display:grid;place-items:center;width:25px;height:25px;border-radius:8px;color:#fff;background:#5367b5;font-size:19px;line-height:1}.game-label:after{content:'';height:1px;background:#dde2ec;flex:1}
+.entry-hint{background:#eef1fa;border-left:3px solid #8997d5;border-radius:4px 10px 10px 4px;padding:10px 12px;color:#4c6082;font-size:12px}
+.equation{background:linear-gradient(#f7f8fc,#f0f4fa);border:1px solid #dfe5ef;border-radius:14px;margin:14px 0 10px;padding-left:12px;padding-right:12px;scrollbar-color:#a9b7d3 #edf1f7;scrollbar-width:thin}
+.printed input,.whole-input{border:2px solid #a7b7d2;border-radius:10px;background:#fff;box-shadow:0 3px 0 #c6d1e255;color:#243e66}
+.printed input:focus,.whole-input:focus{border-color:#566bb7;outline:3px solid #566bb728;outline-offset:2px}
+.conversion-hint{background:#e3e8fb;border:1px solid #c5cfef;color:#41558e;border-radius:8px;font-weight:750}
+input:disabled{background:#e7ebf2;box-shadow:none;color:#8a97a9;border-color:#c2ccdc}
+input[aria-invalid="true"]{border:2px solid #c33e45;background:#fff0f0;box-shadow:0 0 0 2px #c33e4514}
+input[data-correct="true"]{border:2px solid #25844e;background:#eaf8ee;box-shadow:0 0 0 2px #25844e14}
+.actions{gap:11px;padding-bottom:4px}.actions button{min-height:49px;border-radius:12px;font-weight:800}
+button{background:#e7edf8;border:1px solid #bbc8df;color:#384e7b;box-shadow:0 3px 0 #a7b6d2}
+button.primary{background:#5265ad;border-color:#46589d;box-shadow:0 4px 0 #34457f;color:#fff}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 #34457f}
+#new[data-ready="true"]{background:#248455;border-color:#1c7046;color:#fff;box-shadow:0 4px 0 #155b36,0 0 18px #24845545}
+.panel>.note{font-size:11px;padding-top:8px}.scroll-note{color:#657996}
+.status{color:#dce6f5;font-size:14px;border-radius:12px;padding:12px 14px;min-height:44px;margin:14px 0}.status:empty{padding:0;min-height:0;margin:15px 0}
+.status.correct{background:#dff5e6;color:#1f663f;border:1px solid #a5d6b5}.status.wrong{background:#fff0ee;color:#963b42;border:1px solid #ebbec2}
+#help{background:#f8faff;border:1px solid #b4c2db;border-radius:15px;box-shadow:0 4px 0 #0d183540;padding:7px 15px}#help>summary{color:#435b92}.help-number{background:#e6ebfa;color:#435b92}.help-row h3{color:#435b92}
+dialog{background:#fffdf8;border:2px solid #c9d3e8;border-radius:21px}dialog::backdrop{background:#0b1735b3;backdrop-filter:blur(3px)}
+@media(max-width:400px){main{padding:23px 12px}.panel{padding:14px}.heading-row #score{padding:10px;gap:7px}.heading-row h1{min-width:160px;font-size:31px}.heading-row #score strong{font-size:27px}}
+@media(prefers-reduced-motion:no-preference){button{transition:background .15s,box-shadow .15s,transform .15s}}
+.difficulty{display:flex;align-items:center;gap:12px;margin:18px 0 10px;color:#d5e2f5;font-size:13px;font-weight:750}.difficulty select{font:750 15px system-ui;color:#fff;background:#344c75;border:1px solid #7893bb;border-radius:11px;padding:10px 14px;min-height:46px}.difficulty select option{background:#243957;color:#fff}.scratch-hint{background:#fff0c8;color:#654a20;border:1px solid #e6c57b;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.5}
+.difficulty{display:flex;gap:9px;align-items:stretch}.difficulty button{flex:1;min-width:0;min-height:48px;padding:11px 7px;font-size:13px;border:1px solid #8094b7;background:#2d4266;color:#dce6f5;box-shadow:0 3px 0 #102039;border-radius:12px}.difficulty button[aria-pressed="true"]{background:#83e0cf;color:#173f45;border-color:#b2f2e5;box-shadow:0 3px 0 #399d8b,0 0 0 2px #83e0cf20}.difficulty button:focus-visible{outline:3px solid #f5cc6a;outline-offset:3px}
+
+/* Jede Stufe besitzt eine eigene Farbwelt. Prüfmarkierungen bleiben unverändert. */
+body[data-level="base"]{background-color:#123d57;background-image:radial-gradient(ellipse at 0% 0%,#256389,transparent 65%),radial-gradient(ellipse at 100% 90%,#176d6b,transparent 60%)}
+body[data-level="base"] .eyebrow{color:#93ecdf}
+body[data-level="base"] .heading-row #score{background:linear-gradient(145deg,#e6fff5,#a6e6d7);border-color:#c8f9ed;color:#174e4d;box-shadow:0 4px 0 #399889,0 8px 20px #0002;transform:none}
+body[data-level="base"] .heading-row #score small{color:#376c65}
+body[data-level="base"] .score-check{background:#f1fffa;color:#267468;border-color:#81c7b7}
+body[data-level="base"] .game-label:before{background:#2a8392}
+body[data-level="base"] .panel{border-color:#cee5e9}
+body[data-level="base"] .entry-hint{background:#e9f5f7;border-left-color:#58a5b0;color:#3b6974}
+body[data-level="base"] button.primary{background:#267c8d;border-color:#206675;box-shadow:0 4px 0 #155666}
+body[data-level="base"] .difficulty button{background:#204e67;border-color:#6a9aaa;box-shadow:0 3px 0 #0b3045}
+body[data-level="base"] .difficulty button[aria-pressed="true"]{background:#a6e6d7;border-color:#d3fff2;color:#174e4d;box-shadow:0 3px 0 #399889}
+body[data-level="pro"]{background-color:#302349;background-image:radial-gradient(ellipse at 0% 0%,#59477a,transparent 60%),radial-gradient(ellipse at 100% 90%,#41316a,transparent 65%),radial-gradient(#ffffff14 1px,transparent 1px);background-size:auto,auto,20px 20px}
+body[data-level="pro"] .eyebrow{color:#dfc5fc}
+body[data-level="pro"] .intro{color:#d3c8e9}
+body[data-level="pro"] .panel{border-color:#e4d9ed;box-shadow:0 6px 0 #1c123c80,0 12px 28px #130b2925}
+body[data-level="pro"] .game-label{color:#795c9a}
+body[data-level="pro"] .game-label:before{background:#855bb0}
+body[data-level="pro"] .entry-hint{background:#f1eafa;border-left-color:#ad8cc7;color:#6d5385}
+body[data-level="pro"] .equation{background:linear-gradient(#fbf8ff,#f1ebf9);border-color:#e4d9ef}
+body[data-level="pro"] .conversion-hint{background:#eee2fa;color:#714d92;border-color:#d5bce8}
+body[data-level="pro"] button.primary{background:#8557a8;border-color:#754596;box-shadow:0 4px 0 #573173}
+body[data-level="pro"] .difficulty button{background:#48375f;border-color:#9b85b5;box-shadow:0 3px 0 #201331}
+body[data-level="pro"] .difficulty button[aria-pressed="true"]{background:#f5cc6a;color:#543d1f;border-color:#ffe3a7;box-shadow:0 3px 0 #aa762d}
+body[data-level="expert"]{background-color:#291b2c;background-image:radial-gradient(ellipse at 0% 0%,#64344a,transparent 60%),radial-gradient(ellipse at 100% 90%,#3b284d,transparent 65%),repeating-linear-gradient(45deg,transparent 0 22px,#e4bc6e0a 22px 23px);background-size:auto,auto,auto}
+body[data-level="expert"] .eyebrow{color:#f0cd88}
+body[data-level="expert"] .intro{color:#dfcbd6}
+body[data-level="expert"] .heading-row #score{background:linear-gradient(135deg,#7b304b,#4b243b);border:3px double #e3bd75;color:#ffe3a0;box-shadow:0 4px 0 #130c22,0 0 0 3px #e3bd7514;transform:rotate(-2deg)}
+body[data-level="expert"] .heading-row #score small{color:#f3d5a5}
+body[data-level="expert"] .score-check{background:#f3d795;color:#683745;border-color:#ffe7b6}
+body[data-level="expert"] .panel{border:3px double #c29b5d;background:#fffaf0;box-shadow:0 6px 0 #160e2780,0 0 0 4px #e3bd750a}
+body[data-level="expert"] .game-label{color:#8e6440}
+body[data-level="expert"] .game-label:before{content:'✦';background:#75324e;color:#ffe1a0;font-size:16px}
+body[data-level="expert"] .game-label:after{background:#e6d5b5}
+body[data-level="expert"] .entry-hint{background:#f6edda;border-left-color:#c29b5d;color:#7d5b36}
+body[data-level="expert"] .equation{background:linear-gradient(#fffaf0,#f6eddf);border-color:#e7d7bb}
+body[data-level="expert"] .conversion-hint{background:#f6e5bb;color:#78552e;border-color:#dbc48c}
+body[data-level="expert"] button.primary{background:#7b304b;border-color:#69243e;box-shadow:0 4px 0 #4e1d34}
+body[data-level="expert"] .difficulty button{background:#4f2e43;border-color:#b18b9b;box-shadow:0 3px 0 #1a1023}
+body[data-level="expert"] .difficulty button[aria-pressed="true"]{background:#e4bc6e;color:#4e2c27;border:3px double #ffe1a0;box-shadow:0 3px 0 #a67435}
+body[data-level="expert"] #help{background:#fffaf0;border-color:#d4b781}
+body[data-level="expert"] .help-number{background:#f4e4c2;color:#78552e}
+body[data-level="expert"] .help-row h3,body[data-level="expert"] #help>summary{color:#78552e}
+body #new[data-ready="true"]{background:#248455;color:#fff;border-color:#1c7046}
+</style></head><body><main>
+<header><div class="eyebrow">Üben · Brüche mal natürliche Zahlen</div><div class="heading-row"><h1>Bruch-Mission</h1><div id="score" role="status" aria-live="polite"></div></div><p class="intro">Trage dein Ergebnis als Bruch ein: den Zähler oben, den Nenner unten.</p><div class="difficulty" role="group" aria-label="Schwierigkeit"><button id="levelBase" type="button" aria-pressed="false">★ Basis</button><button id="levelPro" type="button" aria-pressed="true">★★ Profi</button><button id="levelExpert" type="button" aria-pressed="false">★★★ Experte</button></div><p id="levelDescription" class="intro"></p><p id="scratchHint" class="scratch-hint" hidden>✎ Nutze einen Schmierzettel für deine Rechnung. Trage hier nur das endgültige Ergebnis ein.</p></header>
+<section class="panel"><div class="game-label">Deine Rechen-Challenge</div><form id="answer" novalidate><p class="entry-hint" id="entryHint">Zuerst den ungekürzten Ergebnisbruch eintragen. Danach werden die weiteren Felder freigeschaltet.</p><div class="equation"><span id="task" class="task-expression" aria-label="Rechenaufgabe"></span><span id="initialEquals">=</span><div class="printed" id="initialResult"><input id="numText" name="numerator" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" enterkeyhint="next" placeholder="Zähler" aria-label="Zähler des Ergebnisses"><hr aria-hidden="true"><input id="denText" name="denominator" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" enterkeyhint="done" placeholder="Nenner" aria-label="Nenner des Ergebnisses"></div><span id="extraSteps" class="extra-steps"></span></div><p class="scroll-note">Lange Rechnung? Wische die Rechenzeile seitlich, um alle Felder zu sehen.</p><div class="actions"><button id="confirm" type="submit" class="primary">Ergebnis prüfen</button><button id="new" type="button">Neue Aufgabe ↻</button></div></form><p id="answerNote" class="note">Trage zuerst das Zwischenergebnis als ungekürzten Bruch ein. Ergänze danach die angezeigten Umformungen. Bei gemischten Zahlen muss der Bruchrest vollständig gekürzt sein.</p></section>
+<p id="status" class="status" role="status" aria-live="polite"></p>
+<details id="help"><summary>Rechenhilfe anzeigen</summary><div id="solution" class="solution"></div></details>
+</main>
+<dialog id="newTaskDialog" aria-labelledby="dialogTitle" aria-describedby="dialogDescription"><h2 id="dialogTitle">Bist du sicher?</h2><p id="dialogDescription">Du hast die aktuelle Aufgabe noch nicht vollständig gelöst. Möchtest du trotzdem eine neue Aufgabe starten?</p><div class="actions"><button id="stayTask" type="button" autofocus>Nein</button><button id="skipTask" type="button" class="primary">Ja</button></div></dialog>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);let multiplier=3,n=2,d=7,solved=0,credited=false,kinds=[],level='pro';
+const scoreKey='bruchmultiplikation-session-solved';
+try{const saved=Number(sessionStorage.getItem(scoreKey));if(Number.isSafeInteger(saved)&&saved>=0)solved=saved}catch(e){}
+function updateScore(){ $('score').innerHTML='<span class="score-check" aria-hidden="true">✓</span><strong>'+solved+'</strong><span>'+(solved===1?'Aufgabe':'Aufgaben')+'<small>richtig gelöst</small></span>';try{sessionStorage.setItem(scoreKey,String(solved))}catch(e){} }
+updateScore();
+function fraction(a,b){return '<span class="frac"><span>'+a+'</span><span>'+b+'</span></span>'}
+function gcd(a,b){return b?gcd(b,a%b):a}
+function message(text,kind=''){$('status').textContent=text;$('status').className='status '+kind}
+function input(id,label){return '<input id="'+id+'" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" autocomplete="off" aria-label="'+label+'">'}
+function fractionFields(prefix,label){return '<div class="printed">'+input(prefix+'Num',label+': Zähler')+'<hr aria-hidden="true">'+input(prefix+'Den',label+': Nenner')+'</div>'}
+function conversion(hint,fields){return '<span class="conversion"><span>=</span><span class="conversion-body"><span class="conversion-hint">'+hint+'</span>'+fields+'</span></span>'}
+function steps(){const a=multiplier*n,g=gcd(a,d);return {whole:a%d===0,reduce:a%d!==0&&g>1,mixed:a>d&&a%d!==0}}
+function configureSteps(){
+const s=steps(),expert=level==='expert';let html='';$('initialResult').hidden=expert;$('initialEquals').hidden=expert;$('numText').disabled=$('denText').disabled=expert;
+if(s.whole)html+=conversion('In eine natürliche Zahl umwandeln',input('whole','Ergebnis als natürliche Zahl').replace('<input','<input class="whole-input"'));
+else{if(s.reduce&&(!expert||!s.mixed))html+=conversion('Vollständig kürzen',fractionFields('reduced','Vollständig gekürzter Bruch'));if(s.mixed)html+=conversion('Als gemischte Zahl schreiben','<span class="mixed-entry">'+input('mixedWhole','Ganze der gemischten Zahl').replace('<input','<input class="whole-input"')+fractionFields('mixed','Vollständig gekürzter Bruchrest')+'</span>')}
+$('extraSteps').innerHTML=html;
+$('scratchHint').hidden=!expert;
+$('levelDescription').textContent=level==='base'?'Basis: Berechne nur den Ergebnisbruch. Kein Kürzen oder Umwandeln nötig.':level==='pro'?'Profi: Rechne schrittweise. Kürze und wandle um, wenn es nötig ist.':'Experte: Auch gemischte Zahlen sind dabei. Gib nur das vollständig vereinfachte Endergebnis an.';
+$('answerNote').textContent=expert?'Nur die Endform zählt: eine natürliche Zahl, ein vollständig gekürzter echter Bruch oder eine gemischte Zahl mit vollständig gekürztem Bruchrest.':'Trage zuerst das Ergebnis als ungekürzten Bruch ein. Ergänze danach die angezeigten Umformungen.';
+}
+function clear(){$('new').setAttribute('data-ready','false');for(const field of document.querySelectorAll('#answer input')){field.value='';field.readOnly=false;field.setAttribute('aria-invalid','false');field.setAttribute('data-correct','false')}syncLock();message('')}
+function extraIds(){const s=steps();return s.whole?['whole']:[...(s.reduce&&(level!=='expert'||!s.mixed)?['reducedNum','reducedDen']:[]),...(s.mixed?['mixedWhole','mixedNum','mixedDen']:[])]}
+function syncLock(){const expert=level==='expert',ready=expert||$('numText').value.trim()!==''&&$('denText').value.trim()!=='';for(const id of extraIds())$(id).disabled=!ready;$('entryHint').textContent=expert?'Rechne auf deinem Schmierzettel. Trage nur die Endform ein.':extraIds().length?(ready?'Die weiteren Felder sind jetzt freigeschaltet. Ergänze die Umformungen.':'Zuerst Zähler und Nenner des ungekürzten Zwischenergebnisses eintragen. Danach werden die weiteren Felder freigeschaltet.'):'Trage das Ergebnis als Bruch ein.'}
+function resetErrors(){for(const field of document.querySelectorAll('#answer input')){field.setAttribute('aria-invalid','false');if(!field.readOnly)field.setAttribute('data-correct','false')}}
+function showErrors(errors){for(const error of errors)$(error.id).setAttribute('aria-invalid','true');message('Bitte korrigieren: '+errors.map(e=>e.label).join('; ')+'.','wrong')}
+
+function category(a,b){return a%b===0?'whole':a>b?'mixed':gcd(a,b)>1?'reduced':'plain'}
+function newTask(){
+document.body.dataset.level=level;
+let pool=[];
+if(level==='expert'){
+ if(!kinds.length)kinds=['fraction','mixedInput'];const form=kinds.pop();
+ for(let den=2;den<=10;den++)for(let num=form==='mixedInput'?den+1:1;num<(form==='mixedInput'?3*den:den);num++)for(let m=2;m<=8;m++){
+ if(form==='mixedInput'&&num%den===0)continue;
+ if(category(m*num,den)==='plain')continue;
+ if(m===multiplier&&num===n&&den===d)continue;
+ pool.push([m,num,den]);}
+}else{
+ if(!kinds.length)kinds=level==='base'?['plain']:['plain','reduced','whole','mixed'].sort(()=>Math.random()-.5);const kind=kinds.pop();
+ for(let den=2;den<=10;den++)for(let num=1;num<den;num++)for(let m=2;m<=8;m++)if(category(m*num,den)===kind&&!(m===multiplier&&num===n&&den===d))pool.push([m,num,den]);
+}
+[multiplier,n,d]=pool[Math.floor(Math.random()*pool.length)];credited=false;configureSteps();clear();
+const operand=level==='expert'&&n>d?'<span class="mixed-entry"><span>'+Math.floor(n/d)+'</span>'+fraction(n%d,d)+'</span>':fraction(n,d);
+$('task').innerHTML='<span>'+multiplier+' ·</span>'+operand;
+$('task').setAttribute('aria-label',multiplier+' mal '+(n>d?Math.floor(n/d)+' Ganze und '+n%d+' durch '+d:n+' durch '+d));renderHelp();$('help').open=false;
+}
+function renderHelp(){
+const s=steps(),expert=level==='expert',hasMore=s.whole||s.reduce||s.mixed,rows=[];
+if(expert&&n>d)rows.push({title:'Gemischte Zahl umwandeln · Schmierzettel',text:'Multipliziere die ganze Zahl der gemischten Zahl mit ihrem Nenner und addiere den Zähler des Bruchrests. Schreibe diese Summe über den bisherigen Nenner. So erhältst du einen unechten Bruch.'});
+rows.push({title:expert?'Multiplizieren · Schmierzettel':hasMore?'Zwischenergebnis':'Ergebnis',text:'Multipliziere den Zähler '+(expert&&n>d?'des umgewandelten Bruchs ':'')+'mit '+multiplier+'. Der Nenner bleibt '+d+'. '+(expert?'Notiere diesen Schritt auf deinem Schmierzettel.':'Trage den Bruch zunächst ungekürzt ein.')});
+if(s.reduce)rows.push({title:expert&&s.mixed?'Bruchrest kürzen':'Kürzen',text:expert&&s.mixed?'Kürze nach dem Umwandeln den Bruchrest vollständig. Teile seinen Zähler und Nenner durch ihren größten gemeinsamen Teiler.':'Teile Zähler und Nenner durch dieselbe möglichst große Zahl. Am Ende darf kein gemeinsamer Teiler größer als 1 übrig bleiben.'});
+if(s.whole)rows.push({title:'Natürliche Zahl',text:'Teile den Ergebniszähler durch den Nenner. Die Division geht ohne Rest auf. Trage nur die natürliche Zahl ein.'});
+if(s.mixed)rows.push({title:'Gemischte Zahl',text:'Teile den Ergebniszähler durch den Nenner. Der ganzzahlige Anteil kommt in das große Feld. Schreibe den Rest als Zähler über den Nenner und kürze den Bruchrest vollständig.'});
+if(expert&&s.mixed&&s.reduce){const row=rows.splice(rows.findIndex(r=>r.title==='Bruchrest kürzen'),1)[0];rows.push(row)}
+$('solution').innerHTML=rows.map((row,i)=>'<div class="help-row"><span class="help-number" aria-hidden="true">'+(i+1)+'</span><div><h3>'+row.title+'</h3><p>'+row.text+'</p></div></div>').join('');
+}
+function read(id){const text=$(id).value.trim();return /^[0-9]{1,5}$/.test(text)?Number(text):null}
+function isCorrect(a,b){return a*d===multiplier*n*b}
+function checkAnswer(){
+ const focused=document.activeElement;
+ if(focused&&focused.tagName==='INPUT'&&$('answer').contains(focused))focused.blur();
+ $('new').setAttribute('data-ready','false');
+resetErrors();syncLock();const raw=multiplier*n,g=gcd(raw,d),errors=[];
+function expect(id,value,label){if($(id).disabled)return;const actual=read(id);$(id).setAttribute('data-correct',String(actual===value));$(id).readOnly=actual===value;if(actual!==value)errors.push({id,label:label+(actual===null?' (fehlt oder ist ungültig)':'')})}
+expect('numText',raw,'Zähler des ungekürzten Zwischenergebnisses');expect('denText',d,'Nenner des ungekürzten Zwischenergebnisses');
+const s=steps();
+if(s.whole)expect('whole',raw/d,'Natürliche Zahl');
+if(s.reduce&&(level!=='expert'||!s.mixed)){expect('reducedNum',raw/g,'Zähler des vollständig gekürzten Bruchs');expect('reducedDen',d/g,'Nenner des vollständig gekürzten Bruchs')}
+if(s.mixed){const rest=raw%d,rg=gcd(rest,d);expect('mixedWhole',Math.floor(raw/d),'Ganze Zahl im gemischten Bruch');expect('mixedNum',rest/rg,'Zähler des gekürzten Bruchrests');expect('mixedDen',d/rg,'Nenner des gekürzten Bruchrests')}
+if(errors.length){showErrors(errors);return}
+if(!credited){solved++;credited=true;updateScore()}$('new').setAttribute('data-ready','true');message('Richtig! Alle Angaben passen. Starte eine neue Aufgabe.','correct');
+}
+$('answer').addEventListener('submit',e=>{e.preventDefault();checkAnswer()});
+$('answer').addEventListener('input',e=>{$('new').setAttribute('data-ready','false');if(e.target.id==='numText'||e.target.id==='denText')resetErrors();else{e.target.setAttribute('aria-invalid','false');e.target.setAttribute('data-correct','false')}syncLock();message('')});
+$('answer').addEventListener('keydown',e=>{if(e.key!=='Enter'||e.target.tagName!=='INPUT')return;const fields=Array.from(document.querySelectorAll('#answer input')).filter(field=>!field.disabled&&!field.readOnly),index=fields.indexOf(e.target);if(index>=0&&index<fields.length-1){e.preventDefault();fields[index+1].focus()}});
+function requestNewTask(){
+ if(!credited){$('newTaskDialog').showModal();return}
+ newTask();
+}
+$('stayTask').addEventListener('click',()=>$('newTaskDialog').close());
+$('skipTask').addEventListener('click',()=>{$('newTaskDialog').close();newTask()});
+for(const [id,value] of [['levelBase','base'],['levelPro','pro'],['levelExpert','expert']])$(id).addEventListener('click',()=>{if(level===value)return;level=value;for(const [button,choice] of [['levelBase','base'],['levelPro','pro'],['levelExpert','expert']])$(button).setAttribute('aria-pressed',String(level===choice));kinds=[];newTask()});
+$('new').addEventListener('click',requestNewTask);newTask();
+</script></body></html>
+
