@@ -210,27 +210,31 @@ if(rest||!whole)bars+='<div class="help-unit">'+helpBar(rest,b)+'<span>'+rest+'/
 return '<div class="help-amount" role="img" aria-label="'+label+': '+whole+' ganze Balken und '+rest+' von '+b+' Teilen eines weiteren Balkens"><strong>'+label+'</strong>'+bars+'</div>';
 }
 function helpPicture(row){
-const raw=multiplier*n,rest=raw%d;
-let html='';
+const blank=(den,label)=>'<div class="help-amount"><strong>'+label+'</strong>'+helpBar(0,den)+'<p class="help-picture-caption">?</p></div>';
+let picture='',caption='',note='Ein vollständiger Balken steht für 1 Ganzes. Leere Balken sind Denkhilfen und zeigen noch kein Ergebnis.';
 if(row.title.startsWith('Gemischte Zahl umwandeln')){
-html=helpAmount(n,d,Math.floor(n/d)+' Ganze und '+n%d+'/'+d)+'<p class="help-picture-caption">'+Math.floor(n/d)+' · '+d+' + '+n%d+' = '+n+' gleich große Teile. Zusammen: '+n+'/'+d+'.</p>';
+picture=helpAmount(n,d,'Die gemischte Zahl aus der Aufgabe');
+caption='Wie viele gleich große Teile stecken in jedem Ganzen? Zähle die Teile der Ganzen und die gefärbten Teile des Bruchrests zusammen.';
 }else if(row.title==='Kürzen'||row.title==='Bruchrest kürzen'){
-const a=row.title==='Bruchrest kürzen'?rest:raw,g=gcd(a,d);
-html='<div class="help-compare">'+helpAmount(a,d,'Vorher: '+a+'/'+d)+helpAmount(a/g,d/g,'Gekürzt: '+a/g+'/'+d/g)+'</div><p class="help-picture-caption">Gleich viel gefärbt, anders eingeteilt: Je '+g+' kleine Teile werden zu einem größeren Teil.</p>';
+picture='<div class="help-compare">'+blank(6,'Kleine gleich große Teile')+'<span aria-hidden="true">→</span>'+blank(3,'Größere gleich große Teile')+'</div>';
+caption='Beispielschema: Fasse kleine Teile zu gleich großen Gruppen zusammen. Suche für deinen Bruch einen gemeinsamen Teiler von Zähler und Nenner. Die gefärbte Menge muss gleich bleiben.';
+note='Diese Einteilung zeigt nur das Prinzip, nicht den gesuchten Nenner oder den Kürzungsfaktor deiner Aufgabe.';
 }else if(row.title==='Natürliche Zahl'){
-html=helpAmount(raw,d,raw+'/'+d+' = '+raw/d+' Ganze')+'<p class="help-picture-caption">Alle Balken sind vollständig gefüllt. Es bleibt kein Bruchrest.</p>';
+picture=blank(d,'So ist ein Ganzes eingeteilt');
+caption='Verteile deine berechneten Teile auf vollständig gefüllte Balken. Wie viele Ganze entstehen? Zeichne und zähle selbst auf deinem Schmierzettel.';
 }else if(row.title==='Gemischte Zahl'){
-const g=gcd(rest,d);
-html=helpAmount(raw,d,Math.floor(raw/d)+' Ganze und '+rest/g+'/'+d/g)+'<p class="help-picture-caption">Zähle die ganzen Balken. Der übrige Anteil ist der Bruchrest: '+rest+'/'+d+(g>1?' = '+rest/g+'/'+d/g:'')+'.</p>';
+picture='<div class="help-compare">'+blank(d,'Wie viele ganze Balken?')+blank(d,'Wie viele Teile bleiben übrig?')+'</div>';
+caption='Bilde aus deinen berechneten Teilen zuerst Ganze. Die übrigen Teile bilden den Bruchrest. Kürze diesen Rest, falls möglich.';
 }else{
-html='<div class="help-compare">'+helpAmount(n,d,'Eine Portion: '+n+'/'+d)+helpAmount(raw,d,'Zusammen: '+raw+'/'+d)+'</div><p class="help-picture-caption">Nimm die linke Portion '+multiplier+'-mal. '+multiplier+' · '+n+' = '+raw+' Teile der Größe 1/'+d+' ergeben die Menge rechts.</p>';
+picture=helpAmount(n,d,'Eine Portion aus der Aufgabe');
+caption='Nimm diese gefärbte Menge '+multiplier+'-mal. Zeichne die Portionen auf deinen Schmierzettel und zähle die gefärbten Teile zusammen. Bleibt die Größe eines einzelnen Teils gleich?';
 }
-return '<div class="help-picture">'+html+'<p class="help-unit-note">Jeder vollständige Balken steht für 1 Ganzes. Alle Balken sind gleich groß.</p></div>';
+return '<div class="help-picture">'+picture+'<p class="help-picture-caption">'+caption+'</p><p class="help-unit-note">'+note+'</p></div>';
 }
 function renderHelp(){
 const s=steps(),expert=level==='expert',hasMore=s.whole||s.reduce||s.mixed,rows=[];
 if(expert&&n>d)rows.push({title:'Gemischte Zahl umwandeln · Schmierzettel',text:'Multipliziere die ganze Zahl der gemischten Zahl mit ihrem Nenner und addiere den Zähler des Bruchrests. Schreibe diese Summe über den bisherigen Nenner. So erhältst du einen unechten Bruch.'});
-rows.push({title:expert?'Multiplizieren · Schmierzettel':hasMore?'Zwischenergebnis':'Ergebnis',text:'Multipliziere den Zähler '+(expert&&n>d?'des umgewandelten Bruchs ':'')+'mit '+multiplier+'. Der Nenner bleibt '+d+'. '+(expert?'Notiere diesen Schritt auf deinem Schmierzettel.':'Trage den Bruch zunächst ungekürzt ein.')});
+rows.push({title:expert?'Multiplizieren · Schmierzettel':hasMore?'Zwischenergebnis':'Ergebnis',text:'Multipliziere den Zähler '+(expert&&n>d?'des umgewandelten Bruchs ':'')+'mit '+multiplier+'. Der Nenner bleibt unverändert. '+(expert?'Notiere diesen Schritt auf deinem Schmierzettel.':'Trage den Bruch zunächst ungekürzt ein.')});
 if(s.reduce)rows.push({title:expert&&s.mixed?'Bruchrest kürzen':'Kürzen',text:expert&&s.mixed?'Kürze nach dem Umwandeln den Bruchrest vollständig. Teile seinen Zähler und Nenner durch ihren größten gemeinsamen Teiler.':'Teile Zähler und Nenner durch dieselbe möglichst große Zahl. Am Ende darf kein gemeinsamer Teiler größer als 1 übrig bleiben.'});
 if(s.whole)rows.push({title:'Natürliche Zahl',text:'Teile den Ergebniszähler durch den Nenner. Die Division geht ohne Rest auf. Trage nur die natürliche Zahl ein.'});
 if(s.mixed)rows.push({title:'Gemischte Zahl',text:'Teile den Ergebniszähler durch den Nenner. Der ganzzahlige Anteil kommt in das große Feld. Schreibe den Rest als Zähler über den Nenner und kürze den Bruchrest vollständig.'});
