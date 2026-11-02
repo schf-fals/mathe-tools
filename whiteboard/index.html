@@ -14,7 +14,7 @@
 <button id="pen" aria-pressed="true"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16-1 5 5-1L21 7l-4-4L4 16ZM14 6l4 4"/></svg>Stift</button>
 <button id="eraser" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 13 9-10 9 8-9 10H8l-4-4a3 3 0 0 1 0-4ZM9 8l9 8M12 21h10"/></svg>Radierer</button>
 <button id="clear" class="clear"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></svg>Alles löschen</button>
-<label class="size" for="size"><span id="sizeLabel">Stiftgröße</span><input id="size" type="range" min="1" max="12" value="3"><output id="sizeValue" for="size">3 px</output></label>
+<label class="size" for="size"><span id="sizeLabel">Stiftgröße</span><input id="size" type="range" min="1" max="12" value="8"><output id="sizeValue" for="size">8 px</output></label>
 </div></header>
 <main class="surface" id="surface"><canvas id="board" aria-label="Whiteboard: Mit Finger, Stift oder Maus zeichnen. Die Zeichnung bleibt nur bis zum Schließen oder Neuladen der Seite erhalten."></canvas><div class="hint" id="hint">Hier kannst du mit dem Finger<br>oder einem Stift schreiben.</div></main>
 <div id="status" class="sr-only" role="status" aria-live="polite"></div>
@@ -22,7 +22,7 @@
 'use strict';
 const canvas=document.getElementById('board'),ctx=canvas.getContext('2d'),surface=document.getElementById('surface');
 const slider=document.getElementById('size'),hint=document.getElementById('hint');
-let tool='pen',sizes={pen:3,eraser:28},strokes=[],active=null,pointer=null,scale=1,viewport={width:1,height:1};
+let tool='pen',sizes={pen:8,eraser:28},strokes=[],active=null,pointer=null,scale=1,viewport={width:1,height:1};
 function configure(){ctx.lineCap='round';ctx.lineJoin='round'}
 function paintStroke(s){
  const points=s.points;if(!points.length)return;
@@ -33,7 +33,19 @@ function paintStroke(s){
 }
 function resize(){
  finish();const width=Math.max(1,surface.clientWidth),height=Math.max(1,surface.clientHeight);
- if(!strokes.length){viewport={width,height};scale=1}else{scale=Math.min(width/viewport.width,height/viewport.height);viewport={width:width/scale,height:height/scale}}
+ if(!strokes.length){viewport={width,height};scale=1}else{
+  // Die Ausgangsfläche bleibt fest. Nur tatsächliche neue Schrift kann
+  // zusätzlichen Platz benötigen, niemals ein Wechsel der Bildschirmgröße.
+  let contentWidth=viewport.width,contentHeight=viewport.height;
+  for(const stroke of strokes){
+   if(stroke.tool!=='pen')continue;
+   for(const point of stroke.points){
+    contentWidth=Math.max(contentWidth,point.x+stroke.size/2);
+    contentHeight=Math.max(contentHeight,point.y+stroke.size/2);
+   }
+  }
+  scale=Math.min(width/contentWidth,height/contentHeight);
+ }
  const ratio=window.devicePixelRatio||1;canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);configure();ctx.clearRect(0,0,width,height);for(const s of strokes)paintStroke(s);
 }
 function position(e){const rect=canvas.getBoundingClientRect();return{x:(e.clientX-rect.left)/scale,y:(e.clientY-rect.top)/scale}}
