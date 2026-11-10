@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Heftkontrolle · Mathe 9c</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#273c42;background:#f1f4f5;font-synthesis:none}*{box-sizing:border-box}body{margin:0;padding:28px 18px}main{max-width:860px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.15em;text-transform:uppercase;font-weight:700;color:#607980}h1{font-size:clamp(32px,6vw,48px);letter-spacing:-.04em;margin:12px 0}header p,.hint,.note{color:#61747a;line-height:1.6}.card{padding:28px;background:#fff;border:1px solid #dbe3e6;border-radius:22px;margin-top:24px}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:16px}button{font:600 15px system-ui;cursor:pointer;border:1px solid transparent;border-radius:12px;padding:14px 18px;background:#285d6b;color:white}button:hover{filter:brightness(.95)}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #d69427;outline-offset:4px}.buttons button{width:100%;min-height:65px}.hint{font-size:13px;margin:10px 0}.secondary{background:#edf1f3;color:#314e57;border-color:#d9e1e4}.section-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:28px}h2{font-size:20px;margin:0}.grid{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}.person{width:100%;height:100%;min-height:100px;text-align:left;padding:15px;border:1px solid #dce2e5;background:#f4f5f6;color:#46565d}.person strong{display:block;font-size:25px;letter-spacing:-.025em}.person small{display:block;margin-top:7px;font-size:12px;line-height:1.45;font-weight:500}.status-ok{background:#e5f3e9;color:#245d3b;border-color:#a7d1b6}.status-redo{background:#fbe9e8;color:#8c3432;border-color:#e7b0ab}.status-neutral{background:#f4f5f6;color:#46565d;border-color:#dce2e5}.legend{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.legend span{border-radius:7px;padding:7px 10px;font-size:12px;border:1px solid}.progress{line-height:1.65}.storage,.note{font-size:12px;line-height:1.6}.failed,.error{color:#a13030}.error:empty{display:none}details{margin-top:26px}summary{cursor:pointer;font-weight:650}#history{font-size:13px;line-height:1.8;padding-left:22px}label{display:block;margin-top:16px;font-size:14px}input[type=file]{display:block;margin:8px 0;max-width:100%}dialog{border:1px solid #ccd8dc;border-radius:18px;padding:26px;width:min(440px,calc(100% - 32px));color:#273c42;box-shadow:0 20px 80px #17374033}dialog::backdrop{background:#16333c77}.choices{display:grid;gap:10px;margin-top:20px}.choices button{text-align:left}.choices small{display:block;font-weight:400;line-height:1.45;margin-top:4px}dialog h2{font-size:30px}dialog .secondary{margin-top:14px;width:100%}.note{text-align:center}@media(max-width:540px){.buttons{grid-template-columns:1fr}.card{padding:20px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.person{padding:12px}.person strong{font-size:23px}}
+.person.is-absent{opacity:.7;border-style:dashed;border-width:2px}.person.is-absent:hover,.person.is-absent:focus-visible{opacity:.9}
+</style></head><body><main>
+<section class="card" aria-label="Heftkontrolle">
+<div class="buttons"><div><button id="draw-all" type="button">Aus allen ziehen</button><p class="hint">Alle 22 SuS. Wiederholungen sind möglich.</p></div><div><button id="draw-new" type="button">Aus noch nicht Vorgezeigten ziehen</button><p class="hint">Nur neutrale Einträge. Bereits in dieser Sitzung Gezogene werden hier ausgelassen, auch bei „Nicht da“.</p></div></div>
+<p id="pool-info" class="hint"></p><p id="error" class="error" role="alert"></p>
+<div class="section-head"><h2>Letzte Ziehungen</h2><button id="new-session" class="secondary" type="button">Neue Sitzung</button></div>
+<p class="hint">Alle Ziehungen der aktuellen Sitzung bleiben hier stehen. Klicke auf ein Kürzel, um das Ergebnis einzutragen. Die Ziehung allein ändert keinen Status.</p>
+<p id="session-info" class="hint" role="status"></p><ul id="output" class="grid" aria-label="Ziehungen dieser Sitzung"></ul>
+<div class="section-head"><h2>Klassenliste · 22 SuS</h2><button id="reset" class="secondary" type="button">Neue Kontrollrunde</button></div>
+<p class="hint">Auch hier kannst du jedes Kürzel anklicken und den Status ändern.</p>
+<div class="legend"><span class="status-ok">✓ Bereits vorgezeigt</span><span class="status-redo">↻ Erneut vorzeigen</span><span class="status-neutral">Noch nicht vorgezeigt</span></div>
+<p id="progress" class="progress"></p><ul id="roster" class="grid" aria-label="Klassenliste"></ul>
+<p id="migration" class="hint"></p><p id="storage" class="storage" role="status"></p>
+<details><summary>Verlauf &amp; Datensicherung</summary><p class="hint">Alle Ziehungen der laufenden Sitzung und die letzten 1.000 Einträge früherer Sitzungen werden gespeichert.</p><ol id="history"></ol><button id="export" class="secondary" type="button">Sicherung herunterladen</button><label for="import">Sicherung wiederherstellen</label><input id="import" type="file" accept="application/json,.json"></details>
+</section><p class="note">Beim Laden der Seite startet automatisch eine neue Sitzung. Bisherige Ziehungen bleiben im Verlauf; die Kategorien der SuS bleiben gespeichert. Nutze dieselbe Datei am selben Speicherort. Sichere den Stand vor einem Gerätewechsel oder dem Löschen von Browserdaten.</p>
+</main>
+<dialog id="actions" aria-labelledby="action-name"><h2 id="action-name"></h2><p id="action-status" class="hint"></p><div class="choices">
+<button id="set-ok" class="status-ok" type="button">✓ Vorgezeigt<small>Alles in Ordnung · als bereits vorgezeigt markieren.</small></button>
+<button id="set-redo" class="status-redo" type="button">↻ Erneut vorzeigen<small>Es gibt etwas nachzubessern · rot markieren.</small></button>
+<button id="set-absent" class="status-neutral" type="button">Nicht da<small>Der bisherige Status bleibt unverändert.</small></button>
+</div><button id="set-neutral" class="secondary" type="button">Auf „Noch nicht vorgezeigt“ zurücksetzen</button><button id="close-actions" class="secondary" type="button">Abbrechen</button></dialog>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const ROSTER=Object.freeze(['CaAk','MiBo','GiDi','JaEl','LiFi','LuGa','ViHo','MaHo','MaHr','MaKo','NiKö','LoLo','EmMi','LiMü','MiOl','RaRa','KaRo','ElSa','HaSt','BeVi','KaWa','PhZe']);
+const KEY='mathe9c-heftkontrolle-v4-status';
+const labels={neutral:'Noch nicht vorgezeigt',ok:'✓ Bereits vorgezeigt',redo:'↻ Erneut vorzeigen'};
+const outcomes={pending:'Ergebnis noch offen',ok:'Vorgezeigt',redo:'Erneut vorzeigen',absent:'Nicht da',neutral:'Zurückgesetzt'};
+let state={version:4,roster:[...ROSTER],round:1,statuses:ROSTER.map(()=>'neutral'),session:{started:new Date().toISOString(),draws:[]},archive:[]};
+const integer=n=>Number.isInteger(n)&&n>=1&&n<=1000000000;
+const member=n=>Number.isInteger(n)&&n>=1&&n<=22;
+const date=d=>typeof d==='string'&&Number.isFinite(Date.parse(d));
+const nums=a=>Array.isArray(a)&&a.length<=22&&new Set(a).size===a.length&&a.every(member);
+const sameRoster=s=>s&&JSON.stringify(s.roster)===JSON.stringify(ROSTER);
+const entry=e=>e&&member(e.person)&&date(e.date)&&integer(e.round)&&['all','new','manual','legacy'].includes(e.source)&&Object.hasOwn(outcomes,e.outcome);
+function valid(s){return sameRoster(s)&&s.version===4&&integer(s.round)&&Array.isArray(s.statuses)&&s.statuses.length===22&&s.statuses.every(x=>Object.hasOwn(labels,x))&&s.session&&date(s.session.started)&&Array.isArray(s.session.draws)&&s.session.draws.every(entry)&&Array.isArray(s.archive)&&s.archive.length<=1000&&s.archive.every(entry);}
+function convert(s){
+ if(valid(s))return s;
+ if(!sameRoster(s)||![2,3].includes(s.version)||!integer(s.round)||!Array.isArray(s.history)||s.history.length>1000||!s.history.every(h=>h&&date(h.date)&&integer(h.round)&&nums(h.numbers)))throw Error();
+ if(s.version===3&&(!nums(s.selected)||!nums(s.followup)))throw Error();
+ if(s.version===2&&(!nums(s.checked)||!(s.pending===null||(s.pending&&nums(s.pending.numbers)&&date(s.pending.date)))))throw Error();
+ const statuses=ROSTER.map((_,i)=>s.version===3?(s.followup.includes(i+1)?'redo':'neutral'):(s.checked.includes(i+1)?'ok':'neutral'));
+ const archive=s.history.flatMap(h=>h.numbers.map(person=>({person,date:h.date,round:h.round,source:'legacy',outcome:s.version===2?'ok':'pending'}))).slice(-1000);
+ const draws=s.version===2&&s.pending?s.pending.numbers.map(person=>({person,date:s.pending.date,round:s.round,source:'legacy',outcome:'pending'})):[];
+ return {version:4,roster:[...ROSTER],round:s.round,statuses,session:{started:new Date().toISOString(),draws},archive};
+}
+let migrated=false,loadFailed=false;
+try{const saved=localStorage.getItem(KEY);if(saved){const parsed=JSON.parse(saved);if(!valid(parsed))throw Error();state=parsed;}else{const old=localStorage.getItem('mathe9c-heftkontrolle-v3-single-draw')??localStorage.getItem('mathe9c-heftkontrolle-v2-fixed-roster');if(old){state=convert(JSON.parse(old));migrated=true;}}}catch(e){loadFailed=true;}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));$('storage').className='storage';$('storage').textContent='Gespeichert · Sitzung, Status und Verlauf';}catch(e){$('storage').className='storage failed';$('storage').textContent='Speichern im Browser nicht möglich. Bitte vor dem Schließen eine Sicherung herunterladen.';}}
+function randomBelow(limit){const b=new Uint32Array(1),cut=4294967296-4294967296%limit;do{crypto.getRandomValues(b);}while(b[0]>=cut);return b[0]%limit;}
+function pool(){const drawn=new Set(state.session.draws.map(e=>e.person));return ROSTER.map((_,i)=>i+1).filter(n=>state.statuses[n-1]==='neutral'&&!drawn.has(n));}
+function formatted(d){return new Date(d).toLocaleString('de-DE');}
+let target=null,returnFocus=null;
+function openActions(person,index=null,button=null){target={person,index};returnFocus=button;$('set-absent').hidden=index===null;$('action-name').textContent=ROSTER[person-1];$('action-status').textContent='Aktueller Status: '+labels[state.statuses[person-1]];$('actions').showModal();}
+function personCard(person,index=null){const li=document.createElement('li'),button=document.createElement('button'),name=document.createElement('strong'),status=document.createElement('small');button.type='button';button.id=index===null?'person-'+person:'draw-'+index;button.className='person status-'+state.statuses[person-1]+(index!==null&&state.session.draws[index].outcome==='absent'?' is-absent':'');name.textContent=ROSTER[person-1];status.textContent=labels[state.statuses[person-1]];button.append(name,status);if(index!==null){const result=document.createElement('small');result.textContent=(index+1)+'. Ziehung · '+outcomes[state.session.draws[index].outcome];button.append(result);}button.setAttribute('aria-haspopup','dialog');button.addEventListener('click',()=>openActions(person,index,button.id));li.append(button);return li;}
+function render(){
+ const available=pool().length;$('draw-new').disabled=available===0;$('pool-info').textContent=available?'Im zweiten Lostopf verfügbar: '+available+' SuS.':'Für diese Sitzung sind keine weiteren neutralen SuS im zweiten Lostopf verfügbar. „Aus allen ziehen“ bleibt möglich.';
+ $('output').replaceChildren();state.session.draws.forEach((e,i)=>$('output').append(personCard(e.person,i)));
+ if(!state.session.draws.length){const li=document.createElement('li');li.className='hint';li.textContent='Noch keine Ziehungen in dieser Sitzung.';$('output').append(li);}
+ $('session-info').textContent='Sitzung seit '+formatted(state.session.started)+' · '+state.session.draws.length+' Ziehungen';
+ $('roster').replaceChildren();ROSTER.forEach((_,i)=>$('roster').append(personCard(i+1)));
+ const count=status=>state.statuses.filter(x=>x===status).length;
+ $('progress').textContent='Kontrollrunde '+state.round+' · '+count('ok')+' bereits vorgezeigt · '+count('redo')+' erneut vorzeigen · '+count('neutral')+' noch nicht vorgezeigt';
+ $('history').replaceChildren();for(const e of [...state.archive,...state.session.draws].reverse()){const li=document.createElement('li');li.textContent=formatted(e.date)+' · '+ROSTER[e.person-1]+' · '+outcomes[e.outcome]+' · Runde '+e.round+(e.source==='manual'?' · In Klassenliste eingetragen':e.source==='legacy'?' · Übernommen':'');$('history').append(li);}
+ if(!state.archive.length&&!state.session.draws.length)$('history').textContent='Noch keine Einträge.';
+}
+function draw(source){const candidates=source==='all'?ROSTER.map((_,i)=>i+1):pool();if(!candidates.length)return;state.session.draws.push({person:candidates[randomBelow(candidates.length)],date:new Date().toISOString(),round:state.round,source,outcome:'pending'});save();render();}
+function applyOutcome(outcome){
+ if(!target)return;const {person,index}=target;
+ if(outcome==='absent'&&index===null)return;
+ if(outcome!=='absent')state.statuses[person-1]=outcome;
+ if(index!==null)state.session.draws[index].outcome=outcome;
+ else{
+  // Resolve all still-open draws for this person when the teacher acts in the class list.
+  for(const e of state.session.draws)if(e.person===person&&e.outcome==='pending')e.outcome=outcome;
+  state.archive.push({person,date:new Date().toISOString(),round:state.round,source:'manual',outcome});state.archive=state.archive.slice(-1000);
+ }
+ $('actions').close();target=null;save();render();if(returnFocus)$(returnFocus)?.focus();
+}
+function archiveSession(){state.archive=[...state.archive,...state.session.draws].slice(-1000);state.session={started:new Date().toISOString(),draws:[]};}
+$('draw-all').addEventListener('click',()=>draw('all'));$('draw-new').addEventListener('click',()=>draw('new'));
+for(const [id,value] of [['set-ok','ok'],['set-redo','redo'],['set-absent','absent'],['set-neutral','neutral']])$(id).addEventListener('click',()=>applyOutcome(value));
+$('close-actions').addEventListener('click',()=>{$('actions').close();target=null;});$('actions').addEventListener('cancel',()=>{target=null;});
+$('new-session').addEventListener('click',()=>{const unresolved=state.session.draws.filter(e=>e.outcome==='pending').length;if(!window.confirm('Neue Sitzung starten? Die bisherigen Ziehungen wandern in den Verlauf. Alle Kategorien bleiben erhalten.'+(unresolved?' '+unresolved+' Ziehungen haben noch kein Ergebnis; sie ändern keinen Status.':'')))return;archiveSession();save();render();});
+$('reset').addEventListener('click',()=>{if(!window.confirm('Neue Kontrollrunde und neue Sitzung beginnen? Grüne Einträge werden neutral. Rote Einträge bleiben „Erneut vorzeigen“. Der Verlauf bleibt erhalten.'))return;archiveSession();state.statuses=state.statuses.map(s=>s==='ok'?'neutral':s);state.round++;save();render();});
+$('export').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='heftkontrolle-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+$('import').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>20000000)throw Error();const imported=convert(JSON.parse(await file.text()));if(!window.confirm('Den aktuellen Stand einschließlich Sitzung und Kategorien durch diese Sicherung ersetzen?'))return;state=imported;save();render();$('error').textContent='';}catch(err){$('error').textContent='Keine gültige Sicherung dieser Klassenliste. Der aktuelle Stand bleibt erhalten.';}finally{e.target.value='';}});
+if(!loadFailed)archiveSession();
+render();if(migrated)$('migration').textContent='Vorherige Daten übernommen. „Bereits gewählt“ ist kein Nachweis fürs Vorzeigen und wird deshalb neutral angezeigt. Markierungen „Erneut vorzeigen“ und der Verlauf bleiben erhalten.';
+if(loadFailed){$('storage').className='storage failed';$('storage').textContent='Der Speicherstand konnte nicht geladen werden. Bitte gegebenenfalls eine Sicherung wiederherstellen.';}else save();
+</script></body></html>
