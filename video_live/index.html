@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Feldblick · Videoanalyse</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5ef;color:#172923;font:16px/1.45 "Segoe UI",system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:22px clamp(12px,4vw,48px) 36px}header,.row,.panel,.brand,.tools,label{display:flex;align-items:center;gap:12px}header{justify-content:space-between;padding-bottom:18px;border-bottom:1px solid #cbd5cc}.brand{font-size:22px;font-weight:760;letter-spacing:-1px}.mark{display:grid;place-items:center;background:#174f40;color:#ddff88;border-radius:9px;width:36px;height:36px;font-size:24px}h1{font-size:clamp(28px,4vw,44px);letter-spacing:-1.8px;margin:22px 0 12px;line-height:1.15}.row,.panel,.tools{flex-wrap:wrap}button,select,input{font:inherit}button,select{padding:9px 13px;border:1px solid #bac9be;border-radius:8px;color:inherit;background:white}button{font-weight:620;cursor:pointer}button:hover:enabled{filter:brightness(.94)}button:disabled,input:disabled{opacity:.45;cursor:default}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #4088db;outline-offset:3px}.primary,button[aria-pressed=true]{background:#195941;color:white;border-color:#195941}.stage{background:#142d28;position:relative;display:grid;place-items:center;border-radius:14px;overflow:hidden;aspect-ratio:16/9;max-height:56vh;min-height:200px;background-image:radial-gradient(#335045 1px,transparent 1px);background-size:17px 17px}.stage video,.screen{grid-area:1/1;width:100%;height:100%;min-height:0;object-fit:contain}.stage video{background:#0b1714}.screen{position:absolute;inset:0;display:grid;place-items:center;background:#0b1714}.sheet{position:relative;max-width:100%;max-height:100%}.sheet canvas{position:absolute;inset:0;width:100%;height:100%}#ink{touch-action:none;cursor:crosshair}.empty{grid-area:1/1;text-align:center;color:white;z-index:1}.empty strong{display:block;font-size:24px;margin-bottom:14px}.empty button{background:#d5f985;border:none}.state{font-size:14px;font-weight:600}.state:before{content:"";display:inline-block;width:9px;height:9px;border-radius:100%;background:#89988e;margin-right:7px}.state.live:before{background:#389454}.state.still:before{background:#d29430}.panel{margin-top:12px;background:#fff;border:1px solid #d3dbd2;border-radius:12px;padding:14px}.timeline{flex:1;min-width:160px}.scale{display:flex;justify-content:space-between;font-size:13px;color:#465a50;font-variant-numeric:tabular-nums}.timeline input{width:100%;margin:6px 0;accent-color:#246444}.source{margin-top:16px}.source label,.tools label{font-size:14px;font-weight:600}select{max-width:min(350px,65vw)}.tools{gap:9px}.tools input[type=color]{width:34px;height:32px;padding:1px;border:1px solid #bdcbbf;background:white;border-radius:5px}.tools input[type=range]{width:86px;accent-color:#195941}output{font-variant-numeric:tabular-nums}#save{margin-left:auto}#msg{font-size:14px;color:#813b1d}#msg:empty{display:none}[hidden]{display:none!important}@media(max-width:550px){.stage{max-height:none}.panel{padding:11px}.timeline{flex-basis:100%;order:-1}.source label{flex-wrap:wrap}#save{margin-left:0}}
+</style>
+<main><header><div class="brand"><span class="mark" aria-hidden="true">↶</span>Feldblick</div><span id="status" role="status" class="state">Kamera aus</span></header>
+<h1>Videoanalyse</h1><section class="stage" id="stage" aria-label="Kamerabild"><video id="video" autoplay playsinline muted hidden></video><div class="screen" id="screen" hidden><div class="sheet" id="sheet"><canvas id="frame"></canvas><canvas id="ink" aria-label="Zeichenfläche"></canvas></div></div><div class="empty" id="empty"><strong>Livebild starten</strong><button id="start">Kamera aktivieren</button></div></section>
+<div class="panel"><button id="toggle" class="primary" disabled>Ⅱ &nbsp; Anhalten</button><div class="timeline"><div class="scale"><span>Rückblick</span><output id="offset">0,0 s</output></div><input id="seek" type="range" min="0" max="0" value="0" step="0.01" aria-label="Zeit vor dem Anhalten in Sekunden" disabled></div></div>
+<section class="panel tools" id="tools" aria-label="Standbild bearbeiten" hidden><button id="pen" aria-pressed="true">Stift</button><button id="eraser" aria-pressed="false">Radierer</button><label>Farbe <input id="color" type="color" value="#ffdb39"></label><label>Stärke <input id="width" type="range" min="1" max="32" value="5"><output id="size">5 px</output></label><button id="save" class="primary">Bild speichern</button></section>
+<div class="row source"><label>Kamera <select id="devices"><option value="">Gerätekamera</option></select></label><button id="stop" hidden>Kamera ausschalten</button></div><p id="msg" role="alert"></p></main>
+<script>
+'use strict';
+const el=id=>document.getElementById(id);
+const video=el('video'), frame=el('frame'), ink=el('ink'), seek=el('seek');
+const capture=document.createElement('canvas'), ctx=capture.getContext('2d'), base=frame.getContext('2d'), draw=ink.getContext('2d');
+let stream=null, session=0, timer=0, historyFrames=[], frozen=[], anchor=0, paused=false, busy=false;
+let frameVersion=0, chosen=null, rubber=false, pointer=null, lastPoint=null;
+const seconds=t=>t.toFixed(1).replace('.',',')+' s';
+function status(label,cls=''){el('status').textContent=label;el('status').className='state '+cls}
+function offset(t){el('offset').textContent=t<-.001?'−'+seconds(-t):seconds(0);seek.setAttribute('aria-valuetext',el('offset').textContent)}
+function resetInk(){pointer=null;draw.clearRect(0,0,ink.width,ink.height)}
+function fit(){if(!paused)return;const w=Math.min(el('screen').clientWidth,el('screen').clientHeight*frame.width/frame.height);el('sheet').style.width=w+'px';el('sheet').style.height=w*frame.height/frame.width+'px'}
+new ResizeObserver(fit).observe(el('stage'));
+function live(){paused=false;frameVersion++;chosen=null;frozen=[];resetInk();el('screen').hidden=el('tools').hidden=true;el('toggle').textContent='Ⅱ  Anhalten';seek.value=0;offset(0);status('Live','live')}
+function controls(){if(paused)return;const span=historyFrames.length?Math.min(30,(performance.now()-historyFrames[0].time)/1000):0;seek.min=-span;seek.value=0;seek.disabled=!historyFrames.length}
+function sample(token){
+ if(token!==session||busy||video.readyState<2)return;
+ const time=performance.now();
+ while(historyFrames.length&&historyFrames[0].time<time-30000)historyFrames.shift();
+ const scale=Math.min(1,960/Math.max(video.videoWidth,video.videoHeight));
+ const w=Math.max(1,Math.round(video.videoWidth*scale)),h=Math.max(1,Math.round(video.videoHeight*scale));
+ if(capture.width!==w||capture.height!==h){capture.width=w;capture.height=h}
+ ctx.drawImage(video,0,0,w,h);busy=true;
+ capture.toBlob(blob=>{if(token!==session)return;busy=false;if(blob){historyFrames.push({time,blob});controls()}},'image/jpeg',.78)
+}
+function freeze(){
+ if(!stream||paused||video.readyState<2)return;
+ anchor=performance.now();frozen=historyFrames.filter(f=>f.time>=anchor-30000);
+ const still=document.createElement('canvas');still.width=video.videoWidth;still.height=video.videoHeight;still.getContext('2d').drawImage(video,0,0);
+ chosen={time:anchor,still};frozen.push(chosen);paused=true;
+ frame.width=ink.width=still.width;frame.height=ink.height=still.height;base.drawImage(still,0,0);resetInk();
+ el('screen').hidden=el('tools').hidden=false;el('toggle').textContent='▶  Zurück zu Live';status('Standbild','still');fit();
+ seek.min=(frozen[0].time-anchor)/1000;seek.value=0;seek.disabled=frozen.length<2;offset(0)
+}
+async function scrub(){
+ const delta=Number(seek.value);if(!paused)freeze();if(!paused)return;
+ const target=anchor+delta*1000;const f=frozen.reduce((a,b)=>Math.abs(a.time-target)<=Math.abs(b.time-target)?a:b);
+ seek.value=(f.time-anchor)/1000;offset((f.time-anchor)/1000);
+ const version=++frameVersion;if(f===chosen){el('save').disabled=false;return}
+ el('save').disabled=true;
+ let url;
+ try{let source=f.still;if(!source){url=URL.createObjectURL(f.blob);source=new Image();source.src=url;await source.decode()}
+ if(version!==frameVersion)return;base.drawImage(source,0,0,frame.width,frame.height);resetInk();chosen=f
+ }catch{if(version===frameVersion){el('msg').textContent='Dieses Einzelbild konnte nicht geladen werden.';seek.value=(chosen.time-anchor)/1000;offset(Number(seek.value))}}
+ finally{if(url)URL.revokeObjectURL(url);if(version===frameVersion)el('save').disabled=false}
+}
+function shutdown(){session++;clearInterval(timer);busy=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;historyFrames=[];live();video.hidden=true;el('empty').hidden=false;el('stop').hidden=true;el('toggle').disabled=seek.disabled=true;el('save').disabled=false;seek.min=0;status('Kamera aus')}
+async function cameras(){
+ if(!navigator.mediaDevices?.enumerateDevices)return;
+ try{const devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput'&&d.deviceId);
+ const current=stream?.getVideoTracks()[0]?.getSettings().deviceId||el('devices').value;
+ el('devices').replaceChildren(new Option('Gerätekamera',''),...devices.map((d,i)=>new Option(d.label||'Kamera '+(i+1),d.deviceId)));
+ el('devices').value=devices.some(d=>d.deviceId===current)?current:''
+ }catch{}
+}
+async function start(){
+ const id=el('devices').value;shutdown();const token=session;
+ el('start').disabled=el('devices').disabled=true;el('msg').textContent='';status('Kamera startet …');
+ try{
+ if(!navigator.mediaDevices?.getUserMedia)throw Error('Öffne die HTML-Datei direkt im Browser oder über HTTPS bzw. localhost, um die Kamera zu verwenden.');
+ const media=await navigator.mediaDevices.getUserMedia({audio:false,video:{width:{ideal:1280},height:{ideal:720},...(id?{deviceId:{exact:id}}:{facingMode:{ideal:'environment'}})}});
+ if(token!==session){media.getTracks().forEach(t=>t.stop());return}
+ stream=media;video.srcObject=media;video.hidden=false;await video.play();if(token!==session)return;
+ media.getVideoTracks()[0].onended=()=>{if(token===session){shutdown();el('msg').textContent='Die Kamera wurde getrennt. Wähle eine Kamera und starte erneut.'}};
+ el('empty').hidden=true;el('stop').hidden=false;el('toggle').disabled=false;live();sample(token);timer=setInterval(()=>sample(token),83);await cameras()
+ }catch(e){if(token!==session)return;shutdown();el('msg').textContent=({NotAllowedError:'Kamerazugriff gesperrt. Erlaube den Zugriff in den Website-Einstellungen und starte erneut.',NotFoundError:'Keine Kamera gefunden. Schließe eine Kamera an und starte erneut.',NotReadableError:'Die Kamera ist belegt oder nicht erreichbar.'})[e.name]||e.message}
+ finally{el('start').disabled=el('devices').disabled=false}
+}
+el('start').onclick=start;el('devices').onchange=()=>{if(stream)start()};el('stop').onclick=shutdown;
+el('toggle').onclick=()=>{if(paused){live();controls();el('save').disabled=false}else freeze()};seek.oninput=scrub;
+navigator.mediaDevices?.addEventListener?.('devicechange',cameras);cameras();window.addEventListener('pagehide',shutdown);
+function tool(erase){rubber=erase;el('pen').setAttribute('aria-pressed',!erase);el('eraser').setAttribute('aria-pressed',erase)}
+el('pen').onclick=()=>tool(false);el('eraser').onclick=()=>tool(true);el('color').oninput=()=>tool(false);el('width').oninput=()=>el('size').value=el('width').value+' px';
+function point(e){const r=ink.getBoundingClientRect();return {x:(e.clientX-r.left)*ink.width/r.width,y:(e.clientY-r.top)*ink.height/r.height}}
+function paint(e,dot){const p=point(e);draw.globalCompositeOperation=rubber?'destination-out':'source-over';draw.strokeStyle=draw.fillStyle=el('color').value;draw.lineWidth=Number(el('width').value)*ink.width/ink.getBoundingClientRect().width;draw.lineCap='round';draw.beginPath();if(dot){draw.arc(p.x,p.y,draw.lineWidth/2,0,2*Math.PI);draw.fill()}else{draw.moveTo(lastPoint.x,lastPoint.y);draw.lineTo(p.x,p.y);draw.stroke()}lastPoint=p}
+ink.onpointerdown=e=>{if(e.button!==0||pointer!==null||el('save').disabled)return;pointer=e.pointerId;ink.setPointerCapture(pointer);paint(e,true)};
+ink.onpointermove=e=>{if(e.pointerId===pointer)paint(e,false)};ink.onpointerup=e=>{if(e.pointerId===pointer){paint(e,false);pointer=null}};ink.onlostpointercapture=ink.onpointercancel=e=>{if(e.pointerId===pointer)pointer=null};
+el('save').onclick=()=>{if(!paused)return;const out=document.createElement('canvas');out.width=frame.width;out.height=frame.height;const g=out.getContext('2d');g.drawImage(frame,0,0);g.drawImage(ink,0,0);out.toBlob(blob=>{if(!blob){el('msg').textContent='Das Bild konnte nicht gespeichert werden.';return}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Feldblick-'+new Date().toISOString().replace(/[:.]/g,'-')+'.png';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),60000)},'image/png')};
+</script></html>
