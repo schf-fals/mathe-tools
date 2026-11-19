@@ -1,27 +1,72 @@
 <!doctype html>
 <html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Feldblick · Videoanalyse</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f3f5ef;color:#172923;font:16px/1.45 "Segoe UI",system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:22px clamp(12px,4vw,48px) 36px}header,.row,.panel,.brand,.tools,label{display:flex;align-items:center;gap:12px}header{justify-content:space-between;padding-bottom:18px;border-bottom:1px solid #cbd5cc}.brand{font-size:22px;font-weight:760;letter-spacing:-1px}.mark{display:grid;place-items:center;background:#174f40;color:#ddff88;border-radius:9px;width:36px;height:36px;font-size:24px}h1{font-size:clamp(28px,4vw,44px);letter-spacing:-1.8px;margin:22px 0 12px;line-height:1.15}.row,.panel,.tools{flex-wrap:wrap}button,select,input{font:inherit}button,select{padding:9px 13px;border:1px solid #bac9be;border-radius:8px;color:inherit;background:white}button{font-weight:620;cursor:pointer}button:hover:enabled{filter:brightness(.94)}button:disabled,input:disabled{opacity:.45;cursor:default}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #4088db;outline-offset:3px}.primary,button[aria-pressed=true]{background:#195941;color:white;border-color:#195941}.stage{background:#142d28;position:relative;display:grid;place-items:center;border-radius:14px;overflow:hidden;aspect-ratio:16/9;max-height:56vh;min-height:200px;background-image:radial-gradient(#335045 1px,transparent 1px);background-size:17px 17px}.stage video,.screen{grid-area:1/1;width:100%;height:100%;min-height:0;object-fit:contain}.stage video{background:#0b1714}.screen{position:absolute;inset:0;display:grid;place-items:center;background:#0b1714}.sheet{position:relative;max-width:100%;max-height:100%}.sheet canvas{position:absolute;inset:0;width:100%;height:100%}#ink{touch-action:none;cursor:crosshair}.empty{grid-area:1/1;text-align:center;color:white;z-index:1}.empty strong{display:block;font-size:24px;margin-bottom:14px}.empty button{background:#d5f985;border:none}.state{font-size:14px;font-weight:600}.state:before{content:"";display:inline-block;width:9px;height:9px;border-radius:100%;background:#89988e;margin-right:7px}.state.live:before{background:#389454}.state.still:before{background:#d29430}.panel{margin-top:12px;background:#fff;border:1px solid #d3dbd2;border-radius:12px;padding:14px}.timeline{flex:1;min-width:160px}.scale{display:flex;justify-content:space-between;font-size:13px;color:#465a50;font-variant-numeric:tabular-nums}.timeline input{width:100%;margin:6px 0;accent-color:#246444}.source{margin-top:16px}.source label,.tools label{font-size:14px;font-weight:600}select{max-width:min(350px,65vw)}.tools{gap:9px}.tools input[type=color]{width:34px;height:32px;padding:1px;border:1px solid #bdcbbf;background:white;border-radius:5px}.tools input[type=range]{width:86px;accent-color:#195941}output{font-variant-numeric:tabular-nums}#save{margin-left:auto}#msg{font-size:14px;color:#813b1d}#msg:empty{display:none}[hidden]{display:none!important}@media(max-width:550px){.stage{max-height:none}.panel{padding:11px}.timeline{flex-basis:100%;order:-1}.source label{flex-wrap:wrap}#save{margin-left:0}}
+*{box-sizing:border-box}body{margin:0;background:#f3f5ef;color:#172923;font:16px/1.45 "Segoe UI",system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:22px clamp(12px,4vw,48px) 36px}header,.row,.panel,.brand,.tools,label{display:flex;align-items:center;gap:12px}header{justify-content:space-between;padding-bottom:18px;border-bottom:1px solid #cbd5cc}.brand{font-size:22px;font-weight:760;letter-spacing:-1px}.mark{display:grid;place-items:center;background:#174f40;color:#ddff88;border-radius:9px;width:36px;height:36px;font-size:24px}h1{font-size:clamp(28px,4vw,44px);letter-spacing:-1.8px;margin:22px 0 12px;line-height:1.15}.row,.panel,.tools{flex-wrap:wrap}button,select,input{font:inherit}button,select{padding:9px 13px;border:1px solid #bac9be;border-radius:8px;color:inherit;background:white}button{font-weight:620;cursor:pointer}button:hover:enabled{filter:brightness(.94)}button:disabled,input:disabled{opacity:.45;cursor:default}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #4088db;outline-offset:3px}.primary,button[aria-pressed=true]{background:#195941;color:white;border-color:#195941}.stage{background:#142d28;position:relative;display:grid;place-items:center;border-radius:14px;overflow:hidden;width:100%;aspect-ratio:16/9;grid-template: minmax(0,1fr) / minmax(0,1fr);background-image:radial-gradient(#335045 1px,transparent 1px);background-size:17px 17px}.stage video,.screen{grid-area:1/1;width:100%;height:100%;min-height:0;object-fit:contain}.stage video{cursor:pointer;background:#0b1714}.screen{position:absolute;inset:0;display:grid;place-items:center;background:#0b1714}.sheet{position:relative;max-width:100%;max-height:100%}.sheet canvas{position:absolute;inset:0;width:100%;height:100%}#ink{touch-action:none;cursor:crosshair}.empty{grid-area:1/1;text-align:center;color:white;z-index:1}.empty strong{display:block;font-size:24px;margin-bottom:14px}.empty button{background:#d5f985;border:none}.state{font-size:14px;font-weight:600}.state:before{content:"";display:inline-block;width:9px;height:9px;border-radius:100%;background:#89988e;margin-right:7px}.state.live:before{background:#389454}.state.still:before{background:#d29430}.panel{margin-top:12px;background:#fff;border:1px solid #d3dbd2;border-radius:12px;padding:14px}.timeline{flex:1;min-width:160px}.scale{display:flex;justify-content:space-between;font-size:13px;color:#465a50;font-variant-numeric:tabular-nums}.timeline input{width:100%;margin:6px 0;accent-color:#246444}.source{margin-top:16px}.source label,.tools label{font-size:14px;font-weight:600}select{max-width:min(350px,65vw)}.tools{gap:9px}.tools input[type=range]{width:86px;accent-color:#195941}output{font-variant-numeric:tabular-nums}#save{margin-left:auto}#msg{font-size:14px;color:#813b1d}#msg:empty{display:none}[hidden]{display:none!important}@media(max-width:550px){.panel{padding:11px}.timeline{flex-basis:100%;order:-1}.source label{flex-wrap:wrap}#save{margin-left:0}}
+
+.colors{display:flex;align-items:center;gap:4px;font-size:14px;font-weight:600}
+.colors>span{margin-right:4px}.swatch{position:relative;padding:5px;cursor:pointer}
+.swatch input{position:absolute;opacity:0;width:1px;height:1px}
+.swatch span{width:24px;height:24px;background:var(--farbe);border:1px solid #78847f;border-radius:50%}
+.swatch input:checked+span{outline:2px solid #172923;outline-offset:2px}
+.swatch input:focus-visible+span{box-shadow:0 0 0 6px #80b5ff}
+.palette{position:relative}.palette summary{display:flex;align-items:center;gap:8px;background:white;border:1px solid #bac9be;border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:600;list-style:none}
+.palette summary::-webkit-details-marker{display:none}.palette summary::after{content:"▾"}.palette[open] summary::after{content:"▴"}
+.chip{border:1px solid #78847f;width:20px;height:20px;border-radius:50%;background:#ffdb39}
+.colors{position:absolute;top:100%;left:0;z-index:3;background:white;padding:6px;border:1px solid #bac9be;border-radius:8px;box-shadow:0 4px 12px #17292324}
+#preview{opacity:.35;pointer-events:none}
+@media(max-width:550px){.palette[open] .colors{position:static}}
+
+.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,140px)) 44px minmax(52px,1fr);width:100%;gap:clamp(6px,2vw,16px);align-items:stretch}
+.tool-column{display:grid;gap:5px;min-width:0}.tool-icon{width:100%;height:44px;display:grid;place-items:center;padding:0}
+.tool-column .palette summary{justify-content:center;padding:4px;min-height:32px}
+.tool-column .palette .colors{display:grid;grid-template-columns:repeat(3,34px);position:absolute;top:100%;left:0}
+
+.tool-column{grid-template-rows:44px 32px auto;align-content:start}
+.tools .tool-size{grid-row:3;display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px;font-size:13px}
+.tool-size output{font-weight:400;white-space:nowrap}
+.tools .tool-size input{grid-column:1/-1;width:100%;margin:0}
+#save.download{display:grid;place-items:center;width:44px;height:44px;padding:0;justify-self:end;align-self:start;margin:0}
+@media(max-width:480px){.tools .tool-size{grid-template-columns:1fr;gap:1px}.tool-size output{grid-row:3;text-align:center}.tools .tool-size input{grid-row:2}}
+@media(max-width:480px){.tool-size{overflow-wrap:anywhere}.tool-column,.tools .tool-size input{min-width:0}}
+
+.tool-options{display:contents}#fullscreen{width:44px;height:42px;display:grid;place-items:center;padding:0}
+#viewer:fullscreen{display:grid;grid-template-rows:minmax(0,1fr) auto;position:relative;width:100%;height:100%;background:#0b1714}
+#viewer:fullscreen .stage{height:100%;min-height:0;aspect-ratio:auto;border-radius:0}
+#viewer:fullscreen>.panel:not(.tools){margin:0;border-radius:0;padding:6px 12px;flex-wrap:nowrap}
+#viewer:fullscreen .timeline{min-width:0;order:0;flex:1}
+#viewer:fullscreen .tools{position:absolute;top:8px;right:8px;margin:0;padding:5px;background:#f4f7f4f0;z-index:4}
+#viewer:fullscreen .tool-grid{display:flex;width:auto;gap:4px;align-items:start}
+#viewer:fullscreen .tool-column{display:block}
+#viewer:fullscreen .tool-icon{width:40px;height:40px}
+#viewer:fullscreen #save{width:40px;height:40px}
+#viewer:fullscreen .tool-options{display:none}
+#viewer:fullscreen .tool-column.open .tool-options{position:absolute;right:0;top:calc(100% + 5px);width:218px;display:grid;gap:10px;padding:12px;background:white;border:1px solid #bac9be;border-radius:9px;box-shadow:0 3px 14px #0003}
+#viewer:fullscreen .tool-options .tool-size{grid-row:auto}
+#viewer:fullscreen .tool-options .palette summary{display:none}
+#viewer:fullscreen .tool-options .palette .colors{position:static;display:grid;grid-template-columns:repeat(6,1fr);gap:0;padding:0;border:0;box-shadow:none}
+#viewer:fullscreen .tool-options .swatch{padding:3px}
 </style>
 <main><header><div class="brand"><span class="mark" aria-hidden="true">↶</span>Feldblick</div><span id="status" role="status" class="state">Kamera aus</span></header>
-<h1>Videoanalyse</h1><section class="stage" id="stage" aria-label="Kamerabild"><video id="video" autoplay playsinline muted hidden></video><div class="screen" id="screen" hidden><div class="sheet" id="sheet"><canvas id="frame"></canvas><canvas id="ink" aria-label="Zeichenfläche"></canvas></div></div><div class="empty" id="empty"><strong>Livebild starten</strong><button id="start">Kamera aktivieren</button></div></section>
-<div class="panel"><button id="toggle" class="primary" disabled>Ⅱ &nbsp; Anhalten</button><div class="timeline"><div class="scale"><span>Rückblick</span><output id="offset">0,0 s</output></div><input id="seek" type="range" min="0" max="0" value="0" step="0.01" aria-label="Zeit vor dem Anhalten in Sekunden" disabled></div></div>
-<section class="panel tools" id="tools" aria-label="Standbild bearbeiten" hidden><button id="pen" aria-pressed="true">Stift</button><button id="eraser" aria-pressed="false">Radierer</button><label>Farbe <input id="color" type="color" value="#ffdb39"></label><label>Stärke <input id="width" type="range" min="1" max="32" value="5"><output id="size">5 px</output></label><button id="save" class="primary">Bild speichern</button></section>
-<div class="row source"><label>Kamera <select id="devices"><option value="">Gerätekamera</option></select></label><button id="stop" hidden>Kamera ausschalten</button></div><p id="msg" role="alert"></p></main>
+<h1>Videoanalyse</h1><div id="viewer"><section class="stage" id="stage" aria-label="Kamerabild"><video id="video" autoplay playsinline muted hidden></video><div class="screen" id="screen" hidden><div class="sheet" id="sheet"><canvas id="frame"></canvas><canvas id="ink" aria-label="Zeichenfläche"></canvas><canvas id="preview" aria-hidden="true"></canvas></div></div><div class="empty" id="empty"><strong>Livebild starten</strong><button id="start">Kamera aktivieren</button></div></section>
+<div class="panel"><button id="toggle" class="primary" disabled>Ⅱ &nbsp; Anhalten</button><div class="timeline"><div class="scale"><span>Rückblick</span><output id="offset">0,0 s</output></div><input id="seek" type="range" min="0" max="0" value="0" step="0.01" aria-label="Zeit vor dem Anhalten in Sekunden" disabled></div><button id="fullscreen" type="button" aria-label="Vollbild öffnen" title="Vollbild öffnen"><svg viewBox="0 0 24 24" width="23" height="23" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M3 9V3h6m6 0h6v6m0 6v6h-6m-6 0H3v-6"/></svg></button></div>
+<section class="panel tools" id="tools" aria-label="Zeichenwerkzeuge" hidden><div class="tool-grid"><div class="tool-column"><button class="tool-icon" id="pen" aria-label="Stift" title="Stift" aria-pressed="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m4 20 1-5L16 4a2 2 0 0 1 3 3L8 18zM14 6l4 4"/></svg></button><div class="tool-options"><details class="palette" id="penPalette" data-tool="pen"><summary aria-label="Stiftfarbe: Grün"><span class="chip" style="background-color:#16b653"></span></summary><div class="colors" role="radiogroup" aria-label="Stiftfarbe"><label class="swatch" title="Grün" style="--farbe:#16b653"><input type="radio" name="penColor" value="#16b653" aria-label="Grün" checked><span></span></label><label class="swatch" title="Rot" style="--farbe:#ff4545"><input type="radio" name="penColor" value="#ff4545" aria-label="Rot"><span></span></label><label class="swatch" title="Blau" style="--farbe:#3199ff"><input type="radio" name="penColor" value="#3199ff" aria-label="Blau"><span></span></label><label class="swatch" title="Gelb" style="--farbe:#ffdb39"><input type="radio" name="penColor" value="#ffdb39" aria-label="Gelb"><span></span></label><label class="swatch" title="Weiß" style="--farbe:#ffffff"><input type="radio" name="penColor" value="#ffffff" aria-label="Weiß"><span></span></label><label class="swatch" title="Schwarz" style="--farbe:#151515"><input type="radio" name="penColor" value="#151515" aria-label="Schwarz"><span></span></label></div></details><label class="tool-size">Stiftgröße <output id="size" for="width">5 px</output><input id="width" type="range" min="1" max="32" value="5"></label></div></div><div class="tool-column"><button class="tool-icon" id="marker" aria-label="Marker" title="Marker" aria-pressed="false"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m7 14 8-11 6 4-8 11zM8 15l-3 4 4 1 3-3M3 22h9"/></svg></button><div class="tool-options"><details class="palette" id="markerPalette" data-tool="marker"><summary aria-label="Markerfarbe: Rot"><span class="chip" style="background-color:#ff4545"></span></summary><div class="colors" role="radiogroup" aria-label="Markerfarbe"><label class="swatch" title="Grün" style="--farbe:#16b653"><input type="radio" name="markerColor" value="#16b653" aria-label="Grün"><span></span></label><label class="swatch" title="Rot" style="--farbe:#ff4545"><input type="radio" name="markerColor" value="#ff4545" aria-label="Rot" checked><span></span></label><label class="swatch" title="Blau" style="--farbe:#3199ff"><input type="radio" name="markerColor" value="#3199ff" aria-label="Blau"><span></span></label><label class="swatch" title="Gelb" style="--farbe:#ffdb39"><input type="radio" name="markerColor" value="#ffdb39" aria-label="Gelb"><span></span></label><label class="swatch" title="Weiß" style="--farbe:#ffffff"><input type="radio" name="markerColor" value="#ffffff" aria-label="Weiß"><span></span></label><label class="swatch" title="Schwarz" style="--farbe:#151515"><input type="radio" name="markerColor" value="#151515" aria-label="Schwarz"><span></span></label></div></details><label class="tool-size" for="markerWidth">Markergröße <output id="markerSize" for="markerWidth">32 px</output><input id="markerWidth" type="range" min="4" max="96" value="32"></label></div></div><div class="tool-column"><button class="tool-icon" id="eraser" aria-label="Radiergummi" title="Radiergummi" aria-pressed="false"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m3 14 10-11a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3L12 21H9l-6-5a2 2 0 0 1 0-2zM7 10l9 8M11 21h11"/></svg></button><div class="tool-options"><label class="tool-size">Radiergröße <output id="eraseSize" for="eraseWidth">80 px</output><input id="eraseWidth" type="range" min="8" max="120" value="80"></label></div></div><button class="tool-icon" id="clearInk" type="button" title="Alle Zeichnungen löschen" aria-label="Alle Zeichnungen löschen" disabled><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg></button><button id="save" class="primary download" title="Standbild herunterladen" aria-label="Standbild herunterladen" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg></button></div></section>
+</div><div class="row source"><label>Kamera <select id="devices"><option value="">Gerätekamera</option></select></label><button id="stop" hidden>Kamera ausschalten</button></div><p id="msg" role="alert"></p></main>
 <script>
 'use strict';
 const el=id=>document.getElementById(id);
 const video=el('video'), frame=el('frame'), ink=el('ink'), seek=el('seek');
 const capture=document.createElement('canvas'), ctx=capture.getContext('2d'), base=frame.getContext('2d'), draw=ink.getContext('2d');
 let stream=null, session=0, timer=0, historyFrames=[], frozen=[], anchor=0, paused=false, busy=false;
-let frameVersion=0, chosen=null, rubber=false, pointer=null, lastPoint=null;
+let frameVersion=0, chosen=null, activeTool='pen', strokeTool=null, pointer=null, lastPoint=null;
 const seconds=t=>t.toFixed(1).replace('.',',')+' s';
 function status(label,cls=''){el('status').textContent=label;el('status').className='state '+cls}
 function offset(t){el('offset').textContent=t<-.001?'−'+seconds(-t):seconds(0);seek.setAttribute('aria-valuetext',el('offset').textContent)}
-function resetInk(){pointer=null;draw.clearRect(0,0,ink.width,ink.height)}
+const preview=el('preview'), highlight=preview.getContext('2d');
+function resetInk(){pointer=null;strokeTool=null;highlight.clearRect(0,0,preview.width,preview.height);draw.clearRect(0,0,ink.width,ink.height)}
+el('clearInk').onclick=resetInk;
 function fit(){if(!paused)return;const w=Math.min(el('screen').clientWidth,el('screen').clientHeight*frame.width/frame.height);el('sheet').style.width=w+'px';el('sheet').style.height=w*frame.height/frame.width+'px'}
 new ResizeObserver(fit).observe(el('stage'));
-function live(){paused=false;frameVersion++;chosen=null;frozen=[];resetInk();el('screen').hidden=el('tools').hidden=true;el('toggle').textContent='Ⅱ  Anhalten';seek.value=0;offset(0);status('Live','live')}
+function live(){paused=false;frameVersion++;chosen=null;frozen=[];resetInk();el('screen').hidden=true;el('tools').hidden=!stream;el('save').hidden=true;el('clearInk').disabled=true;el('toggle').textContent='Ⅱ  Anhalten';seek.value=0;offset(0);status('Live','live')}
 function controls(){if(paused)return;const span=historyFrames.length?Math.min(30,(performance.now()-historyFrames[0].time)/1000):0;seek.min=-span;seek.value=0;seek.disabled=!historyFrames.length}
 function sample(token){
  if(token!==session||busy||video.readyState<2)return;
@@ -39,7 +84,7 @@ function freeze(){
  const still=document.createElement('canvas');still.width=video.videoWidth;still.height=video.videoHeight;still.getContext('2d').drawImage(video,0,0);
  chosen={time:anchor,still};frozen.push(chosen);paused=true;
  frame.width=ink.width=still.width;frame.height=ink.height=still.height;base.drawImage(still,0,0);resetInk();
- el('screen').hidden=el('tools').hidden=false;el('toggle').textContent='▶  Zurück zu Live';status('Standbild','still');fit();
+ el('screen').hidden=false;el('save').hidden=false;el('clearInk').disabled=false;el('toggle').textContent='▶  Zurück zu Live';status('Standbild','still');fit();
  seek.min=(frozen[0].time-anchor)/1000;seek.value=0;seek.disabled=frozen.length<2;offset(0)
 }
 async function scrub(){
@@ -76,14 +121,99 @@ async function start(){
  }catch(e){if(token!==session)return;shutdown();el('msg').textContent=({NotAllowedError:'Kamerazugriff gesperrt. Erlaube den Zugriff in den Website-Einstellungen und starte erneut.',NotFoundError:'Keine Kamera gefunden. Schließe eine Kamera an und starte erneut.',NotReadableError:'Die Kamera ist belegt oder nicht erreichbar.'})[e.name]||e.message}
  finally{el('start').disabled=el('devices').disabled=false}
 }
-el('start').onclick=start;el('devices').onchange=()=>{if(stream)start()};el('stop').onclick=shutdown;
+video.onclick=freeze;el('start').onclick=start;el('devices').onchange=()=>{if(stream)start()};el('stop').onclick=shutdown;
 el('toggle').onclick=()=>{if(paused){live();controls();el('save').disabled=false}else freeze()};seek.oninput=scrub;
 navigator.mediaDevices?.addEventListener?.('devicechange',cameras);cameras();window.addEventListener('pagehide',shutdown);
-function tool(erase){rubber=erase;el('pen').setAttribute('aria-pressed',!erase);el('eraser').setAttribute('aria-pressed',erase)}
-el('pen').onclick=()=>tool(false);el('eraser').onclick=()=>tool(true);el('color').oninput=()=>tool(false);el('width').oninput=()=>el('size').value=el('width').value+' px';
+function tool(name){
+ activeTool=name;
+ for(const id of ['pen','marker','eraser']) el(id).setAttribute('aria-pressed',id===name);
+}
+
+const viewer=el('viewer'), fullscreen=el('fullscreen');
+const columns=Array.from(viewer.querySelectorAll('.tool-column'));
+function showOptions(selected){
+ const full=document.fullscreenElement===viewer;
+ for(const column of columns){
+  const open=full&&column===selected, button=column.querySelector('button');
+  column.classList.toggle('open',open);
+  if(full)button.setAttribute('aria-expanded',open);else button.removeAttribute('aria-expanded');
+  const palette=column.querySelector('.palette');if(palette)palette.open=open;
+ }
+}
+for(const column of columns){
+ const button=column.querySelector('button');
+ button.onclick=()=>{
+  tool(button.id);
+  if(document.fullscreenElement===viewer)showOptions(column.classList.contains('open')?null:column);
+ };
+}
+fullscreen.onclick=async()=>{
+ try{
+  if(document.fullscreenElement===viewer)await document.exitFullscreen();
+  else await viewer.requestFullscreen();
+ }catch{el('msg').textContent='Vollbild konnte nicht geöffnet werden.'}
+};
+document.addEventListener('fullscreenchange',()=>{
+ const full=document.fullscreenElement===viewer;
+ fullscreen.title=full?'Vollbild beenden':'Vollbild öffnen';
+ fullscreen.setAttribute('aria-label',fullscreen.title);
+ fullscreen.querySelector('path').setAttribute('d',full?'M9 3v6H3m12-6v6h6m0 6h-6v6m-6 0v-6H3':'M3 9V3h6m6 0h6v6m0 6v6h-6m-6 0H3v-6');
+ showOptions(null);requestAnimationFrame(fit);
+});
+document.addEventListener('pointerdown',e=>{
+ if(document.fullscreenElement===viewer&&!el('tools').contains(e.target))showOptions(null);
+});
+
+for(const palette of document.querySelectorAll('.palette')){
+ const summary=palette.querySelector('summary'), colors=palette.querySelector('.colors');
+ function select(input){
+  palette.querySelector('.chip').style.backgroundColor=input.value;
+  summary.setAttribute('aria-label',colors.getAttribute('aria-label')+': '+input.getAttribute('aria-label'));
+  tool(palette.dataset.tool);
+ }
+ colors.onchange=e=>select(e.target);
+ colors.onclick=e=>{
+  if(e.target.type!=='radio')return;
+  select(e.target);if(document.fullscreenElement!==viewer){palette.open=false;summary.focus()}
+ };
+ document.addEventListener('pointerdown',e=>{if(document.fullscreenElement!==viewer&&!palette.contains(e.target))palette.open=false});
+ palette.onkeydown=e=>{if(e.key==='Escape'){palette.open=false;summary.focus()}};
+}
+el('width').oninput=()=>el('size').value=el('width').value+' px';
+el('markerWidth').oninput=()=>el('markerSize').value=el('markerWidth').value+' px';
+el('eraseWidth').oninput=()=>el('eraseSize').value=el('eraseWidth').value+' px';
 function point(e){const r=ink.getBoundingClientRect();return {x:(e.clientX-r.left)*ink.width/r.width,y:(e.clientY-r.top)*ink.height/r.height}}
-function paint(e,dot){const p=point(e);draw.globalCompositeOperation=rubber?'destination-out':'source-over';draw.strokeStyle=draw.fillStyle=el('color').value;draw.lineWidth=Number(el('width').value)*ink.width/ink.getBoundingClientRect().width;draw.lineCap='round';draw.beginPath();if(dot){draw.arc(p.x,p.y,draw.lineWidth/2,0,2*Math.PI);draw.fill()}else{draw.moveTo(lastPoint.x,lastPoint.y);draw.lineTo(p.x,p.y);draw.stroke()}lastPoint=p}
-ink.onpointerdown=e=>{if(e.button!==0||pointer!==null||el('save').disabled)return;pointer=e.pointerId;ink.setPointerCapture(pointer);paint(e,true)};
-ink.onpointermove=e=>{if(e.pointerId===pointer)paint(e,false)};ink.onpointerup=e=>{if(e.pointerId===pointer){paint(e,false);pointer=null}};ink.onlostpointercapture=ink.onpointercancel=e=>{if(e.pointerId===pointer)pointer=null};
-el('save').onclick=()=>{if(!paused)return;const out=document.createElement('canvas');out.width=frame.width;out.height=frame.height;const g=out.getContext('2d');g.drawImage(frame,0,0);g.drawImage(ink,0,0);out.toBlob(blob=>{if(!blob){el('msg').textContent='Das Bild konnte nicht gespeichert werden.';return}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Feldblick-'+new Date().toISOString().replace(/[:.]/g,'-')+'.png';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),60000)},'image/png')};
+function paint(e,dot){
+ const p=point(e), marker=strokeTool==='marker', erase=strokeTool==='eraser';
+ const brush=marker?highlight:draw;
+ brush.globalCompositeOperation=erase?'destination-out':'source-over';
+ brush.strokeStyle=brush.fillStyle=el(marker?'markerPalette':'penPalette').querySelector('input:checked').value;
+ const width=Number(el(marker?'markerWidth':erase?'eraseWidth':'width').value);
+ brush.lineWidth=width*ink.width/ink.getBoundingClientRect().width;
+ brush.lineCap='round';brush.beginPath();
+ if(dot){brush.arc(p.x,p.y,brush.lineWidth/2,0,2*Math.PI);brush.fill()}
+ else{brush.moveTo(lastPoint.x,lastPoint.y);brush.lineTo(p.x,p.y);brush.stroke()}
+ lastPoint=p;
+}
+function finishStroke(e){
+ if(e.pointerId!==pointer)return;
+ if(strokeTool==='marker'){
+  draw.save();draw.globalCompositeOperation='source-over';draw.globalAlpha=.35;
+  draw.drawImage(preview,0,0);draw.restore();
+  highlight.clearRect(0,0,preview.width,preview.height);
+ }
+ pointer=null;strokeTool=null;
+}
+ink.onpointerdown=e=>{
+ if(e.button!==0||pointer!==null||el('save').disabled)return;
+ pointer=e.pointerId;strokeTool=activeTool;ink.setPointerCapture(pointer);
+ if(strokeTool==='marker'&&(preview.width!==ink.width||preview.height!==ink.height)){
+  preview.width=ink.width;preview.height=ink.height;
+ }
+ paint(e,true);
+};
+ink.onpointermove=e=>{if(e.pointerId===pointer)paint(e,false)};
+ink.onpointerup=e=>{if(e.pointerId===pointer){paint(e,false);finishStroke(e)}};
+ink.onlostpointercapture=ink.onpointercancel=finishStroke;
+el('save').onclick=()=>{if(!paused)return;const out=document.createElement('canvas');out.width=frame.width;out.height=frame.height;const g=out.getContext('2d');g.drawImage(frame,0,0);g.drawImage(ink,0,0);if(strokeTool==='marker'){g.globalAlpha=.35;g.drawImage(preview,0,0)}out.toBlob(blob=>{if(!blob){el('msg').textContent='Das Bild konnte nicht gespeichert werden.';return}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Feldblick-'+new Date().toISOString().replace(/[:.]/g,'-')+'.png';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),60000)},'image/png')};
 </script></html>
