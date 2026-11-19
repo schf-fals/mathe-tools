@@ -45,12 +45,16 @@
 #viewer:fullscreen .tool-options .palette summary{display:none}
 #viewer:fullscreen .tool-options .palette .colors{position:static;display:grid;grid-template-columns:repeat(6,1fr);gap:0;padding:0;border:0;box-shadow:none}
 #viewer:fullscreen .tool-options .swatch{padding:3px}
+.recording-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:14px}.recording-row a{padding:8px 12px;border-radius:8px;background:#195941;color:white;font-weight:600;text-decoration:none}.downloads{grid-column:5;justify-self:end;display:grid;grid-template-rows:44px 44px;gap:6px}
+#saveVideo{grid-row:2;width:44px;height:44px;padding:0;display:grid;place-items:center}
+#viewer:fullscreen .downloads{display:contents}
+#viewer:fullscreen #saveVideo{position:fixed;top:8px;left:8px;z-index:5;box-shadow:0 1px 5px #0005}
 </style>
 <main><header><div class="brand"><span class="mark" aria-hidden="true">↶</span>Feldblick</div><span id="status" role="status" class="state">Kamera aus</span></header>
 <h1>Videoanalyse</h1><div id="viewer"><section class="stage" id="stage" aria-label="Kamerabild"><video id="video" autoplay playsinline muted hidden></video><div class="screen" id="screen" hidden><div class="sheet" id="sheet"><canvas id="frame"></canvas><canvas id="ink" aria-label="Zeichenfläche"></canvas><canvas id="preview" aria-hidden="true"></canvas></div></div><div class="empty" id="empty"><strong>Livebild starten</strong><button id="start">Kamera aktivieren</button></div></section>
 <div class="panel"><button id="toggle" class="primary" disabled>Ⅱ &nbsp; Anhalten</button><div class="timeline"><div class="scale"><span>Rückblick</span><output id="offset">0,0 s</output></div><input id="seek" type="range" min="0" max="0" value="0" step="0.01" aria-label="Zeit vor dem Anhalten in Sekunden" disabled></div><button id="fullscreen" type="button" aria-label="Vollbild öffnen" title="Vollbild öffnen"><svg viewBox="0 0 24 24" width="23" height="23" stroke="currentColor" stroke-width="2" fill="none" aria-hidden="true"><path d="M3 9V3h6m6 0h6v6m0 6v6h-6m-6 0H3v-6"/></svg></button></div>
-<section class="panel tools" id="tools" aria-label="Zeichenwerkzeuge" hidden><div class="tool-grid"><div class="tool-column"><button class="tool-icon" id="pen" aria-label="Stift" title="Stift" aria-pressed="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m4 20 1-5L16 4a2 2 0 0 1 3 3L8 18zM14 6l4 4"/></svg></button><div class="tool-options"><details class="palette" id="penPalette" data-tool="pen"><summary aria-label="Stiftfarbe: Grün"><span class="chip" style="background-color:#16b653"></span></summary><div class="colors" role="radiogroup" aria-label="Stiftfarbe"><label class="swatch" title="Grün" style="--farbe:#16b653"><input type="radio" name="penColor" value="#16b653" aria-label="Grün" checked><span></span></label><label class="swatch" title="Rot" style="--farbe:#ff4545"><input type="radio" name="penColor" value="#ff4545" aria-label="Rot"><span></span></label><label class="swatch" title="Blau" style="--farbe:#3199ff"><input type="radio" name="penColor" value="#3199ff" aria-label="Blau"><span></span></label><label class="swatch" title="Gelb" style="--farbe:#ffdb39"><input type="radio" name="penColor" value="#ffdb39" aria-label="Gelb"><span></span></label><label class="swatch" title="Weiß" style="--farbe:#ffffff"><input type="radio" name="penColor" value="#ffffff" aria-label="Weiß"><span></span></label><label class="swatch" title="Schwarz" style="--farbe:#151515"><input type="radio" name="penColor" value="#151515" aria-label="Schwarz"><span></span></label></div></details><label class="tool-size">Stiftgröße <output id="size" for="width">5 px</output><input id="width" type="range" min="1" max="32" value="5"></label></div></div><div class="tool-column"><button class="tool-icon" id="marker" aria-label="Marker" title="Marker" aria-pressed="false"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m7 14 8-11 6 4-8 11zM8 15l-3 4 4 1 3-3M3 22h9"/></svg></button><div class="tool-options"><details class="palette" id="markerPalette" data-tool="marker"><summary aria-label="Markerfarbe: Rot"><span class="chip" style="background-color:#ff4545"></span></summary><div class="colors" role="radiogroup" aria-label="Markerfarbe"><label class="swatch" title="Grün" style="--farbe:#16b653"><input type="radio" name="markerColor" value="#16b653" aria-label="Grün"><span></span></label><label class="swatch" title="Rot" style="--farbe:#ff4545"><input type="radio" name="markerColor" value="#ff4545" aria-label="Rot" checked><span></span></label><label class="swatch" title="Blau" style="--farbe:#3199ff"><input type="radio" name="markerColor" value="#3199ff" aria-label="Blau"><span></span></label><label class="swatch" title="Gelb" style="--farbe:#ffdb39"><input type="radio" name="markerColor" value="#ffdb39" aria-label="Gelb"><span></span></label><label class="swatch" title="Weiß" style="--farbe:#ffffff"><input type="radio" name="markerColor" value="#ffffff" aria-label="Weiß"><span></span></label><label class="swatch" title="Schwarz" style="--farbe:#151515"><input type="radio" name="markerColor" value="#151515" aria-label="Schwarz"><span></span></label></div></details><label class="tool-size" for="markerWidth">Markergröße <output id="markerSize" for="markerWidth">32 px</output><input id="markerWidth" type="range" min="4" max="96" value="32"></label></div></div><div class="tool-column"><button class="tool-icon" id="eraser" aria-label="Radiergummi" title="Radiergummi" aria-pressed="false"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m3 14 10-11a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3L12 21H9l-6-5a2 2 0 0 1 0-2zM7 10l9 8M11 21h11"/></svg></button><div class="tool-options"><label class="tool-size">Radiergröße <output id="eraseSize" for="eraseWidth">80 px</output><input id="eraseWidth" type="range" min="8" max="120" value="80"></label></div></div><button class="tool-icon" id="clearInk" type="button" title="Alle Zeichnungen löschen" aria-label="Alle Zeichnungen löschen" disabled><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg></button><button id="save" class="primary download" title="Standbild herunterladen" aria-label="Standbild herunterladen" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg></button></div></section>
-</div><div class="row source"><label>Kamera <select id="devices"><option value="">Gerätekamera</option></select></label><button id="stop" hidden>Kamera ausschalten</button></div><p id="msg" role="alert"></p></main>
+<section class="panel tools" id="tools" aria-label="Zeichenwerkzeuge" hidden><div class="tool-grid"><div class="tool-column"><button class="tool-icon" id="pen" aria-label="Stift" title="Stift" aria-pressed="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m4 20 1-5L16 4a2 2 0 0 1 3 3L8 18zM14 6l4 4"/></svg></button><div class="tool-options"><details class="palette" id="penPalette" data-tool="pen"><summary aria-label="Stiftfarbe: Grün"><span class="chip" style="background-color:#16b653"></span></summary><div class="colors" role="radiogroup" aria-label="Stiftfarbe"><label class="swatch" title="Grün" style="--farbe:#16b653"><input type="radio" name="penColor" value="#16b653" aria-label="Grün" checked><span></span></label><label class="swatch" title="Rot" style="--farbe:#ff4545"><input type="radio" name="penColor" value="#ff4545" aria-label="Rot"><span></span></label><label class="swatch" title="Blau" style="--farbe:#3199ff"><input type="radio" name="penColor" value="#3199ff" aria-label="Blau"><span></span></label><label class="swatch" title="Gelb" style="--farbe:#ffdb39"><input type="radio" name="penColor" value="#ffdb39" aria-label="Gelb"><span></span></label><label class="swatch" title="Weiß" style="--farbe:#ffffff"><input type="radio" name="penColor" value="#ffffff" aria-label="Weiß"><span></span></label><label class="swatch" title="Schwarz" style="--farbe:#151515"><input type="radio" name="penColor" value="#151515" aria-label="Schwarz"><span></span></label></div></details><label class="tool-size">Stiftgröße <output id="size" for="width">5 px</output><input id="width" type="range" min="1" max="32" value="5"></label></div></div><div class="tool-column"><button class="tool-icon" id="marker" aria-label="Marker" title="Marker" aria-pressed="false"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m7 14 8-11 6 4-8 11zM8 15l-3 4 4 1 3-3M3 22h9"/></svg></button><div class="tool-options"><details class="palette" id="markerPalette" data-tool="marker"><summary aria-label="Markerfarbe: Rot"><span class="chip" style="background-color:#ff4545"></span></summary><div class="colors" role="radiogroup" aria-label="Markerfarbe"><label class="swatch" title="Grün" style="--farbe:#16b653"><input type="radio" name="markerColor" value="#16b653" aria-label="Grün"><span></span></label><label class="swatch" title="Rot" style="--farbe:#ff4545"><input type="radio" name="markerColor" value="#ff4545" aria-label="Rot" checked><span></span></label><label class="swatch" title="Blau" style="--farbe:#3199ff"><input type="radio" name="markerColor" value="#3199ff" aria-label="Blau"><span></span></label><label class="swatch" title="Gelb" style="--farbe:#ffdb39"><input type="radio" name="markerColor" value="#ffdb39" aria-label="Gelb"><span></span></label><label class="swatch" title="Weiß" style="--farbe:#ffffff"><input type="radio" name="markerColor" value="#ffffff" aria-label="Weiß"><span></span></label><label class="swatch" title="Schwarz" style="--farbe:#151515"><input type="radio" name="markerColor" value="#151515" aria-label="Schwarz"><span></span></label></div></details><label class="tool-size" for="markerWidth">Markergröße <output id="markerSize" for="markerWidth">32 px</output><input id="markerWidth" type="range" min="4" max="96" value="32"></label></div></div><div class="tool-column"><button class="tool-icon" id="eraser" aria-label="Radiergummi" title="Radiergummi" aria-pressed="false"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="m3 14 10-11a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3L12 21H9l-6-5a2 2 0 0 1 0-2zM7 10l9 8M11 21h11"/></svg></button><div class="tool-options"><label class="tool-size">Radiergröße <output id="eraseSize" for="eraseWidth">80 px</output><input id="eraseWidth" type="range" min="8" max="120" value="80"></label></div></div><button class="tool-icon" id="clearInk" type="button" title="Alle Zeichnungen löschen" aria-label="Alle Zeichnungen löschen" disabled><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg></button><div class="downloads"><button id="save" class="primary download" title="Standbild herunterladen" aria-label="Standbild herunterladen" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg></button><button id="saveVideo" class="primary" type="button" aria-label="Aufnahme beenden und Sitzungsvideo herunterladen" title="Aufnahme beenden und Sitzungsvideo herunterladen" disabled><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M13 5H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h5m6-9 6-3v9l-3-2M14 12v9m-4-4 4 4 4-4"/></svg></button></div></div></section>
+</div><div class="row source"><label>Kamera <select id="devices"><option value="">Gerätekamera</option></select></label><button id="stop" hidden>Kamera ausschalten</button></div><div id="recordings" aria-live="polite"></div><p id="msg" role="alert"></p></main>
 <script>
 'use strict';
 const el=id=>document.getElementById(id);
@@ -99,7 +103,182 @@ async function scrub(){
  }catch{if(version===frameVersion){el('msg').textContent='Dieses Einzelbild konnte nicht geladen werden.';seek.value=(chosen.time-anchor)/1000;offset(Number(seek.value))}}
  finally{if(url)URL.revokeObjectURL(url);if(version===frameVersion)el('save').disabled=false}
 }
-function shutdown(){session++;clearInterval(timer);busy=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;historyFrames=[];live();video.hidden=true;el('empty').hidden=false;el('stop').hidden=true;el('toggle').disabled=seek.disabled=true;el('save').disabled=false;seek.min=0;status('Kamera aus')}
+const recordings=el('recordings');
+let recording=null;
+const requestedDownloads=new WeakSet();
+const videoDownload=el('saveVideo');
+videoDownload.onclick=()=>{
+ if(!recording)return;
+ requestedDownloads.add(recording);
+ finishSession();
+};
+// Finalize the single H.264 video track without decoding the camera frames.
+async function finalizeVideo(source){
+ const view=b=>new DataView(b.buffer,b.byteOffset,b.byteLength);
+ const u32=(b,i)=>view(b).getUint32(i);
+ const four=(b,i)=>String.fromCharCode(...b.subarray(i,i+4));
+ function join(parts){
+  const out=new Uint8Array(parts.reduce((n,p)=>n+p.length,0));
+  let i=0;for(const part of parts){out.set(part,i);i+=part.length}return out;
+ }
+ function words(values){
+  const bytes=new Uint8Array(values.length*4), v=view(bytes);
+  values.forEach((x,i)=>v.setUint32(i*4,x));return bytes;
+ }
+ const box=(name,...parts)=>join([words([8+parts.reduce((n,p)=>n+p.length,0)]),new TextEncoder().encode(name),...parts]);
+ function children(bytes){
+  const items=[];let i=8;
+  while(i<bytes.length){
+   const size=u32(bytes,i);if(size<8||i+size>bytes.length)throw Error('MP4-Struktur');
+   items.push(bytes.subarray(i,i+size));i+=size;
+  }
+  return items;
+ }
+ const child=(b,name)=>children(b).find(x=>four(x,4)===name);
+ const rebuild=(b,map)=>box(four(b,4),...children(b).map(x=>map[four(x,4)]??x));
+ function duration(b,offset,ticks){
+  const v=view(b);if(b[8]===1)v.setBigUint64(offset+8,BigInt(ticks));else v.setUint32(offset,ticks);
+ }
+ function runs(values){
+  const entries=[];
+  for(const value of values){
+   if(entries.length&&entries[entries.length-1]===value)entries[entries.length-2]++;
+   else entries.push(1,value);
+  }return words([entries.length/2,...entries]);
+ }
+ const sizes=[],times=[],composition=[],keys=[],offsets=[],parts=[];
+ let moov,defaults,bytesWritten=0,sourcePos=0,pending=[];
+ const read=async(a,b)=>new Uint8Array(await source.slice(a,b).arrayBuffer());
+ while(sourcePos<source.size){
+  const head=await read(sourcePos,sourcePos+16),type=four(head,4);
+  let length=u32(head,0),header=8;
+  if(length===1){length=Number(view(head).getBigUint64(8));header=16}
+  if(!length)length=source.size-sourcePos;
+  if(length<header||sourcePos+length>source.size)throw Error('MP4-Länge');
+  const end=sourcePos+length;
+  if(type==='ftyp'||type==='mdat'){
+   if(type==='mdat'){
+    for(const run of pending){
+     const pos=run.pos??(sourcePos+header);
+     if(pos<sourcePos+header||pos+run.size>end)throw Error('MP4-Videodaten');
+     for(const delta of run.starts)offsets.push(bytesWritten+pos-sourcePos+delta);
+    }
+    pending=[];
+   }
+   parts.push(source.slice(sourcePos,end));bytesWritten+=length;
+  }else if(type==='moov'){
+   moov=await read(sourcePos,end);const mvex=child(moov,'mvex');
+   if(!mvex)return source;
+   defaults=child(mvex,'trex');
+  }else if(type==='moof'){
+   const traf=child(await read(sourcePos,end),'traf'),tfhd=child(traf,'tfhd');
+   const flags=u32(tfhd,8)&0xffffff;
+   let i=16,base=sourcePos;
+   if(flags&1){base=Number(view(tfhd).getBigUint64(i));i+=8}
+   if(flags&2)i+=4;
+   const take=(flag,at)=>{if(!(flags&flag))return u32(defaults,at);const n=u32(tfhd,i);i+=4;return n};
+   const dt=take(8,20),size=take(16,24),sf=take(32,28);
+   let next=null;
+   for(const tr of children(traf).filter(x=>four(x,4)==='trun')){
+    const f=u32(tr,8)&0xffffff,count=u32(tr,12);let j=16;
+    const get=()=>{const n=u32(tr,j);j+=4;return n};
+    const pos=f&1?base+(get()|0):next,first=f&4?get():sf;
+    const run={pos,starts:[],size:0};
+    for(let k=0;k<count;k++){
+     const d=f&256?get():dt,n=f&512?get():size,flags=f&1024?get():(k===0?first:sf);
+     const c=f&2048?get():0;
+     run.starts.push(run.size);run.size+=n;sizes.push(n);times.push(d);composition.push(tr[8]===1?c|0:c);
+     if(!(flags&65536))keys.push(sizes.length);
+    }
+    pending.push(run);next=pos===null?null:pos+run.size;
+   }
+  }
+  sourcePos=end;
+ }
+ if(!moov||!sizes.length||sizes.length!==offsets.length)throw Error('MP4-Index');
+ const trak=child(moov,'trak'),mdia=child(trak,'mdia'),minf=child(mdia,'minf'),stbl=child(minf,'stbl');
+ const mvhd=child(moov,'mvhd'),mdhd=child(mdia,'mdhd'),tkhd=child(trak,'tkhd');
+ const ticks=times.reduce((a,b)=>a+b,0);
+ const scale=b=>u32(b,b[8]===1?28:20);
+ const movieTicks=Math.round(ticks*scale(mvhd)/scale(mdhd));
+ duration(mdhd,24,ticks);duration(mvhd,24,movieTicks);duration(tkhd,28,movieTicks);
+ const co=new Uint8Array(offsets.length*8),cv=view(co);
+ offsets.forEach((n,i)=>cv.setBigUint64(i*8,BigInt(n)));
+ const zero=words([0]);
+ const tables=[child(stbl,'stsd'),box('stts',zero,runs(times)),box('stsc',words([0,1,1,1,1])),box('stsz',words([0,0,sizes.length]),words(sizes)),box('co64',zero,words([offsets.length]),co),box('stss',zero,words([keys.length]),words(keys))];
+ if(composition.some(x=>x!==0))tables.push(box('ctts',words([composition.some(x=>x<0)?0x01000000:0]),runs(composition)));
+ const empty=new Uint8Array();
+ const track=rebuild(trak,{edts:empty,mdia:rebuild(mdia,{minf:rebuild(minf,{stbl:box('stbl',...tables)})})});
+ parts.push(rebuild(moov,{mvex:empty,trak:track}));
+ return new Blob(parts,{type:'video/mp4'});
+}
+function startRecording(media){
+ try{
+  const type=['video/mp4;codecs=avc1','video/mp4;codecs=avc1.42E01E'].find(t=>MediaRecorder.isTypeSupported(t));
+  if(!type)throw Error('H.264');
+  const recorder=new MediaRecorder(media,{mimeType:type});
+  const chunks=[], started=new Date();
+  const row=document.createElement('div');
+  row.className='recording-row';
+  const label=document.createElement('span');
+  label.textContent='Aufnahme seit '+started.toLocaleTimeString('de-DE');
+  const link=document.createElement('a');
+  link.hidden=true;
+  link.textContent='Sitzungsvideo herunterladen';
+  row.append(label,link);
+  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  recorder.onerror=()=>{label.textContent='Aufnahme unterbrochen'};
+  recorder.onstop=async()=>{
+   if(recording===recorder){recording=null;videoDownload.disabled=true}
+   if(!chunks.length){label.textContent='Keine Videodaten für diese Sitzung verfügbar.';return}
+   label.textContent='MP4 wird für den Download vorbereitet …';
+   const raw=new Blob(chunks,{type:'video/mp4'});
+   let blob;
+   try{blob=await finalizeVideo(raw)}catch{label.textContent='Zeitindex konnte nicht erstellt werden.';blob=raw}
+   chunks.length=0;
+   link.href=URL.createObjectURL(blob);
+   const extension='mp4';
+   link.download='Feldblick-Sitzung-'+started.toISOString().replace(/[:.]/g,'-')+'.'+extension;
+   link.hidden=false;
+   if(label.textContent!=='Zeitindex konnte nicht erstellt werden.')label.textContent='Sitzung vom '+started.toLocaleString('de-DE');
+   if(requestedDownloads.has(recorder))link.click();
+  };
+  recorder.start(1000);
+  recording=recorder;
+  videoDownload.disabled=false;
+  recordings.prepend(row);
+ }catch{
+  el('msg').textContent='Die Kamera läuft. Die MP4-Aufnahme mit H.264 ist in diesem Browser nicht verfügbar.';
+ }
+}
+function stopRecording(){
+ const recorder=recording;
+ videoDownload.disabled=true;
+ recording=null;
+ if(recorder&&recorder.state!=='inactive')recorder.stop();
+}
+let standby=null;
+function shutdown(){
+ if(standby){standby.getTracks().forEach(track=>track.stop());standby=null}
+ stopRecording();session++;clearInterval(timer);busy=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;historyFrames=[];live();video.hidden=true;el('empty').hidden=false;el('stop').hidden=true;el('toggle').disabled=seek.disabled=true;el('save').disabled=false;seek.min=0;status('Kamera aus');
+ el('start').textContent='Kamera aktivieren';
+ el('stop').textContent='Kamera ausschalten';
+}
+function finishSession(){
+ if(!stream)return;
+ const media=stream;
+ stopRecording();
+ stream=null;
+ shutdown();
+ standby=media;
+ const track=media.getVideoTracks()[0];
+ track.enabled=false;
+ track.onended=()=>{if(standby===media)shutdown()};
+ status('Bereit · keine Aufnahme');
+ el('start').textContent='Neue Aufnahme starten';
+ el('stop').textContent='Kamerazugriff freigeben';
+ el('stop').hidden=false;
+}
 async function cameras(){
  if(!navigator.mediaDevices?.enumerateDevices)return;
  try{const devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput'&&d.deviceId);
@@ -109,19 +288,24 @@ async function cameras(){
  }catch{}
 }
 async function start(){
- const id=el('devices').value;shutdown();const token=session;
+ const id=el('devices').value;
+ const track=standby?.getVideoTracks()[0];
+ const reusable=track?.readyState==='live'&&(!id||track.getSettings().deviceId===id)?standby:null;
+ if(reusable)standby=null;
+ shutdown();
+ const token=session;
  el('start').disabled=el('devices').disabled=true;el('msg').textContent='';status('Kamera startet …');
  try{
  if(!navigator.mediaDevices?.getUserMedia)throw Error('Öffne die HTML-Datei direkt im Browser oder über HTTPS bzw. localhost, um die Kamera zu verwenden.');
- const media=await navigator.mediaDevices.getUserMedia({audio:false,video:{width:{ideal:1280},height:{ideal:720},...(id?{deviceId:{exact:id}}:{facingMode:{ideal:'environment'}})}});
+ const media=reusable||await navigator.mediaDevices.getUserMedia({audio:false,video:{width:{ideal:1280},height:{ideal:720},...(id?{deviceId:{exact:id}}:{facingMode:{ideal:'environment'}})}});
  if(token!==session){media.getTracks().forEach(t=>t.stop());return}
- stream=media;video.srcObject=media;video.hidden=false;await video.play();if(token!==session)return;
+ media.getVideoTracks()[0].enabled=true;stream=media;startRecording(media);video.srcObject=media;video.hidden=false;await video.play();if(token!==session)return;
  media.getVideoTracks()[0].onended=()=>{if(token===session){shutdown();el('msg').textContent='Die Kamera wurde getrennt. Wähle eine Kamera und starte erneut.'}};
  el('empty').hidden=true;el('stop').hidden=false;el('toggle').disabled=false;live();sample(token);timer=setInterval(()=>sample(token),83);await cameras()
  }catch(e){if(token!==session)return;shutdown();el('msg').textContent=({NotAllowedError:'Kamerazugriff gesperrt. Erlaube den Zugriff in den Website-Einstellungen und starte erneut.',NotFoundError:'Keine Kamera gefunden. Schließe eine Kamera an und starte erneut.',NotReadableError:'Die Kamera ist belegt oder nicht erreichbar.'})[e.name]||e.message}
  finally{el('start').disabled=el('devices').disabled=false}
 }
-video.onclick=freeze;el('start').onclick=start;el('devices').onchange=()=>{if(stream)start()};el('stop').onclick=shutdown;
+video.onclick=freeze;el('start').onclick=start;el('devices').onchange=()=>{if(stream)start()};el('stop').onclick=()=>{if(stream)finishSession();else shutdown()};
 el('toggle').onclick=()=>{if(paused){live();controls();el('save').disabled=false}else freeze()};seek.oninput=scrub;
 navigator.mediaDevices?.addEventListener?.('devicechange',cameras);cameras();window.addEventListener('pagehide',shutdown);
 function tool(name){
