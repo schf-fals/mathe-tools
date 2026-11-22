@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Parabelwerkstatt · Mathematik 10</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f3;color:#192f32;font:16px/1.45 "Segoe UI",sans-serif}main{max-width:1120px;margin:auto;padding:28px 22px}header,.bar{display:flex;align-items:center;justify-content:space-between;gap:10px}header{margin-bottom:20px}h1{font:600 clamp(30px,5vw,48px)/1.1 Georgia,serif;margin:3px 0}small,.label{font-weight:650;color:#40665f}button{font:inherit;font-weight:600;border:1px solid #98b2a9;background:white;color:#234c43;border-radius:8px;padding:8px 12px;cursor:pointer}button:hover{background:#e7efea}article,aside{background:white;border:1px solid #d6dfd9;border-radius:14px;padding:18px;min-width:0}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}h2{font-size:19px;margin:0 0 8px}p{margin:4px 0 12px}.bar{margin-bottom:12px}.plot{position:relative;width:100%;aspect-ratio:1;overflow:hidden}.plot canvas,.plot #ggb{position:absolute;inset:0;width:100%;height:100%}#ggb{opacity:0;pointer-events:none}#ggb.ready{opacity:1}section+section{border-top:1px solid #d9e3dd;margin-top:18px;padding-top:16px}.points{display:flex;gap:14px;flex-wrap:wrap}.label{font-size:13px;display:block;margin-bottom:5px}.math{font:clamp(18px,2.5vw,24px) Georgia,serif;white-space:nowrap}input.val{font:inherit;text-align:center;width:2.2em;padding:4px 0;border-radius:6px;border:1px solid #94aba2;background:#f8faf8;color:#192f32}input::placeholder{color:#657975;font-style:italic}fieldset{margin:0;padding:0;border:0}fieldset label{display:block}input[type=radio]{accent-color:#246958}button:focus-visible,input:focus-visible{outline:3px solid #de993c;outline-offset:2px}.good{background:#e2f4e8!important;border-color:#297849!important}.bad{background:#fff0e4!important;border-color:#af5823!important}.check{margin-top:12px;background:#255e51;color:white;border:0}.check:hover{background:#194c40}.msg{font-size:14px;margin:7px 0 0;color:#314f48}.msg:empty{display:none}@media(max-width:820px){.layout{grid-template-columns:1fr}.plot{max-width:470px;margin:auto}}@media(max-width:450px){main{padding:14px 10px}article,aside{padding:12px}.math{font-size:19px}.points{gap:10px}}
+#ticks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;fill:#374940;font:12px "Segoe UI",sans-serif}
+body{--accent:#246853;--wash:#eaf4ec;background:var(--wash)}
+body[data-level=Profi]{--accent:#264f8a;--wash:#edf3fb}
+body[data-level=Experte]{--accent:#623a83;--wash:#f5eff9}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.levels button{position:relative;text-align:left;padding:10px 14px;border:2px solid transparent;border-radius:10px;color:#fff}
+.levels button[aria-pressed=true]{outline:2px solid #263940;outline-offset:2px}
+.levels button[data-level=Basis]{background:#387558}
+.levels button[data-level=Profi]{background:repeating-linear-gradient(120deg,transparent 0 10px,#ffffff10 10px 13px),#305a90}
+.levels button[data-level=Experte]{background:repeating-linear-gradient(60deg,transparent 0 15px,#ffffff12 15px 17px),repeating-linear-gradient(-60deg,transparent 0 15px,#ffffff18 15px 17px),linear-gradient(110deg,#51336d,#804483)}
+.levels span{display:block;font-weight:400;font-size:13px}
+.scoreline{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;margin:14px 0 18px}
+progress{accent-color:var(--accent);width:100px}
+.bonus{margin-left:auto;color:var(--accent);font-weight:650}
+.check,.check:hover{background:var(--accent)}aside,article{border-top:3px solid var(--accent)}
+#sign{width:1.45em}dialog{max-width:min(400px,90vw);border:1px solid #b9c8c0;border-radius:14px;padding:22px;color:inherit}dialog::backdrop{background:#172c3080}.actions{display:flex;flex-wrap:wrap;gap:8px}#skip{background:var(--accent);color:white}</style></head><body><main><header><div><small>Mathematik 10</small><h1>Parabelwerkstatt</h1></div><button id="next">Neue Parabel ↻</button></header><nav class="levels" aria-label="Schwierigkeitsniveau"><button data-level="Basis" aria-pressed="true">Basis<span>1 Punkt pro Aufgabe</span></button><button data-level="Profi" aria-pressed="false">Profi<span>2 Punkte pro Aufgabe</span></button><button data-level="Experte" aria-pressed="false">Experte<span>3 Punkte pro Aufgabe</span></button></nav><div class="scoreline"><strong id="score"></strong><progress id="progress" max="9" aria-label="Fortschritt zum Bonuslevel"></progress><span id="reward" role="status"></span><span id="locked" class="bonus">Bonuslevel ab 9 Punkten</span><a id="bonus" class="bonus" hidden target="_blank" rel="noopener" href="https://schf-fals.github.io/mathe-tools/parabel_challenge/">Bonuslevel starten ↗</a></div>
+<div class="layout"><aside><div class="bar"><h2 style="margin:0">Funktionsgraph</h2><small id="count"></small></div><div class="plot" id="plot"><canvas id="canvas" role="img" aria-label="Parabel im Koordinatensystem mit zwei Kästchen pro Einheit"></canvas><div id="ggb" aria-hidden="true"></div><svg id="ticks" aria-hidden="true"></svg></div></aside><article>
+<section id="features"><h2>Merkmale des Graphen</h2><div class="points"><div><span class="label">Scheitelpunkt</span><span class="math">S(<i data-key="sx"></i> | <i data-key="sy"></i>)</span></div><div><span class="label">y-Achsenabschnitt</span><span class="math">P(<i data-key="px"></i> | <i data-key="py"></i>)</span></div><fieldset><legend class="label">Normalform?</legend><label><input type="radio" name="normal" value="ja"> Ja</label><label><input type="radio" name="normal" value="nein"> Nein</label></fieldset></div><button class="check" data-check="features">Merkmale Prüfen</button><p class="msg" aria-live="polite"></p></section>
+<section id="vertex"><h2>1 · Scheitelpunktform</h2><p>Lies die Parameter <i>a</i>, <i>d</i> und <i>e</i> am Graphen ab. <span id="signHint" hidden>Trage in der Klammer zuerst + oder − ein und danach den Betrag von <i>d</i>.</span></p><div class="math">f(x) = <i data-key="va"></i> · (x <span id="fixedMinus">−</span><input id="sign" class="val" aria-label="Vorzeichen in der Klammer" placeholder="±" maxlength="1" autocomplete="off" hidden> <i data-key="d"></i>)² + <i data-key="e"></i></div><button class="check" data-check="vertex">Scheitelpunktform prüfen</button><p class="msg" aria-live="polite"></p></section>
+<section id="expanded"><h2>2 · Allgemeine Form</h2><p>Multipliziere die Scheitelpunktform auf einem Schmierzettel oder im Heft aus. Fasse zusammen und trage die Koeffizienten ein.</p><div class="math">f(x) = <i data-key="a"></i> x² + <i data-key="b"></i> x + <i data-key="c"></i></div><button class="check" data-check="expanded">allgemeine Form prüfen</button><p class="msg" aria-live="polite"></p></section></article></div></main><dialog id="skipDialog" aria-labelledby="skipTitle"><h2 id="skipTitle">Aufgabe überspringen?</h2><p>Es sind noch nicht alle Felder richtig geprüft. Wenn du diese Aufgabe überspringst, wird dir ein Punkt vom Gesamtscore abgezogen.</p><div class="actions"><button id="stay" autofocus>Weiterarbeiten</button><button id="skip">Überspringen (−1 Punkt)</button></div></dialog>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const points={Basis:1,Profi:2,Experte:3};
+const pools={Basis:[],Profi:[],Experte:[]};
+// Alle Verschiebungen lassen neben dem Scheitelpunkt Platz für weitere Gitterpunkte.
+const compressed=[];
+for(const d of [2,-2,3,-3,1,-1,4,-4,5,-5,6,-6]){
+ for(const e of [-3,2,-1,3,-2,1,0]){
+  for(const a of [2,-2,3,-3,0.5,-0.5,0.25,-0.25]){
+   const task=[a,d,e], intercept=a*d*d+e;
+   if(Math.abs(a)>1){
+    if(Math.abs(intercept)<=7)pools.Basis.push(task);
+    if(Math.abs(intercept)>=9)pools.Profi.push(task);
+   }else if(Math.abs(intercept)>=9)compressed.push(task);
+  }
+ }
+}
+// Durchmischung mit festem Startwert hält die Aufgabennummern beim Neuladen stabil.
+function shuffle(list,seed){
+ for(let i=list.length-1;i>0;i--){
+  seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+  const j=Math.floor(seed/4294967296*(i+1));
+  [list[i],list[j]]=[list[j],list[i]];
+ }
+}
+shuffle(pools.Basis,19);shuffle(pools.Profi,23);shuffle(compressed,31);
+for(let i=0;i<compressed.length;i++){
+ pools.Experte.push(compressed[i]);
+ if(i%2===1)pools.Experte.push(pools.Profi[i%pools.Profi.length]);
+}
+let level='Basis';
+const positions={Basis:0,Profi:0,Experte:0};
+const passed=new Set();
+const storageKey='parabelwerkstatt-levels-v1';
+let earned={};
+try{earned=JSON.parse(sessionStorage.getItem(storageKey))||{}}catch{}
+const drafts={};
+let bonusUnlocked=false;
+try{bonusUnlocked=sessionStorage.getItem(storageKey+'-bonus')==='yes'}catch{}
+function renderScore(){
+ const score=Object.values(earned).reduce((sum,n)=>sum+n,0);
+ $('score').textContent=score+(score===1?' Punkt':' Punkte');
+ $('progress').value=Math.min(score,$('progress').max);
+ if(score>=Number($('progress').max)){
+  bonusUnlocked=true;
+  try{sessionStorage.setItem(storageKey+'-bonus','yes')}catch{}
+ }
+ $('bonus').hidden=!bonusUnlocked;$('locked').hidden=bonusUnlocked;
+}
+function recordCheck(group){
+ passed.add(group);
+ if(passed.size!==3)return;
+ const key=level+'-'+index;
+ if(Object.hasOwn(earned,key))return;
+ earned[key]=points[level];
+ try{sessionStorage.setItem(storageKey,JSON.stringify(earned))}catch{}
+ renderScore();
+ $('reward').textContent='Aufgabe gelöst! +'+points[level]+(points[level]===1?' Punkt':' Punkte');
+}
+
+const labels={sign:"Vorzeichen in der Klammer",sx:'Scheitelpunkt x',sy:'Scheitelpunkt y',px:'y-Achsenabschnitt x',py:'y-Achsenabschnitt y',va:'Scheitelpunktform a',d:'d',e:'e',a:'Allgemeine Form a',b:'b',c:'c'};
+let index=0,tasks=pools.Basis,api=null;
+for(const slot of document.querySelectorAll('[data-key]')){
+ const key=slot.dataset.key,field=document.createElement('input');
+ field.id=key;field.className='val';field.autocomplete='off';field.spellcheck=false;field.setAttribute('aria-label',labels[key]);
+ field.placeholder=({sx:'x',sy:'y',px:'x',py:'y',va:'a'})[key]||key;slot.replaceWith(field);
+}
+function expected(){const [a,d,e]=tasks[index],c=a*d*d+e;return {sx:d,sy:e,px:0,py:c,va:a,d,e,a,b:-2*a*d,c}}
+function parseValue(value){
+ const s=value.trim().replace(/−/g,'-').replace(/,/g,'.');
+ if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:\s*\/\s*[+-]?\d+)?$/.test(s))return NaN;
+ const [n,d=1]=s.split('/');return Number(n)/Number(d);
+}
+const groups={features:['sx','sy','px','py'],vertex:['va','d','e'],expanded:['a','b','c']};
+const success={features:'Die Merkmale stimmen.',vertex:'Die Scheitelpunktform stimmt.',expanded:'Die allgemeine Form stimmt.'};
+function correctEntry(key,input,values,expert){
+ const value=input.trim().replace(/−/g,'-');
+ if(expert && key==='sign')return value===(values.d<0?'+':'-');
+ if(expert && key==='d')return !/[+-]/.test(value) && Math.abs(parseValue(value)-Math.abs(values.d))<1e-8;
+ return Math.abs(parseValue(value)-values[key])<1e-8;
+}
+function equivalentSignedShift(operator,entry,d){
+ const sign=operator.trim().replace(/−/g,'-');
+ const number=entry.trim();
+ if(!['+','-'].includes(sign)||!/^[+−-]/.test(number))return false;
+ const shift=(sign==='-'?-1:1)*parseValue(number);
+ return Math.abs(shift+d)<1e-8;
+}
+function check(group){
+ const values=expected(),issues=[];
+ const expert=level==="Experte";
+ const keys=expert && group==="vertex"?["va","sign","d","e"]:groups[group];
+ const signHint=expert && group==='vertex' && equivalentSignedShift($('sign').value,$('d').value,values.d);
+ for(const key of keys){
+  const field=$(key),ok=correctEntry(key,field.value,values,expert);
+  field.readOnly=ok;
+  field.className='val '+(ok?'good':'bad');field.setAttribute('aria-invalid',String(!ok));if(!ok && !(signHint && (key==='sign'||key==='d')))issues.push(labels[key]);
+ }
+ if(group==='features'){const radio=document.querySelector('[name=normal]:checked'),ok=radio?.value===(values.a===1?'ja':'nein');document.querySelector('fieldset').disabled=ok;document.querySelector('fieldset').className=ok?'good':'bad';if(!ok)issues.push('Normalform (gilt a = 1?)')}
+ const feedback=[];
+ if(signHint)feedback.push('Dein Klammerausdruck ist rechnerisch richtig. Fasse die beiden Vorzeichen zusammen und trage das Ergebnis ins Vorzeichenfeld ein. In das Feld für d gehört nur der Betrag.');
+ if(issues.length)feedback.push('Überprüfe bitte: '+issues.join(', ')+'.');
+ if(!feedback.length){feedback.push('Richtig! '+success[group]);recordCheck(group)}
+ $(group).querySelector('.msg').textContent=feedback.join(' ');
+}
+function draw(){
+ const cv=$('canvas'),w=$('plot').clientWidth,r=window.devicePixelRatio||1;
+ cv.width=cv.height=Math.round(w*r);const g=cv.getContext('2d');g.scale(cv.width/w,cv.width/w);
+ const u=w/16,p=x=>w/2+x*u,q=y=>w/2-y*u;
+ function line(x,y,X,Y,color){g.strokeStyle=color;g.beginPath();g.moveTo(x,y);g.lineTo(X,Y);g.stroke()}
+ g.fillStyle='#fbfcfa';g.fillRect(0,0,w,w);g.font='12px sans-serif';
+ for(let i=-8;i<=8;i+=0.5){line(p(i),0,p(i),w,'#dae3dd');line(0,q(i),w,q(i),'#dae3dd')}
+ line(0,q(0),w,q(0),'#465c54');line(p(0),0,p(0),w,'#465c54');g.fillStyle='#374940';
+
+ g.fillText('x',w-12,q(0)-6);g.fillText('y',p(0)+7,13);
+ const [a,d,e]=tasks[index];g.beginPath();for(let i=0;i<=w;i++){const x=(i-w/2)/u,y=q(a*(x-d)**2+e);if(i===0)g.moveTo(i,y);else g.lineTo(i,y)}
+ g.strokeStyle='#226d62';g.lineWidth=3;g.stroke();
+}
+function drawTicks(view){
+ const width=$('plot').clientWidth;
+ const x=value=>view?(value-view.xMin)/view.invXscale:width*(value+8)/16;
+ const y=value=>view?view.height-(value-view.yMin)/view.invYscale:width*(8-value)/16;
+ const layer=$('ticks');
+ layer.replaceChildren();
+ function label(value,left,top,anchor,baseline){
+  const text=document.createElementNS('http://www.w3.org/2000/svg','text');
+  text.setAttribute('x',left);text.setAttribute('y',top);
+  text.setAttribute('text-anchor',anchor);text.setAttribute('dominant-baseline',baseline);
+  text.textContent=value;layer.appendChild(text);
+ }
+ for(let value=-7;value<=7;value++){
+  if(value===0)continue;
+  label(value,x(value),y(0)+4,'middle','hanging');
+  label(value,x(0)-5,y(value),'end','central');
+ }
+}
+function graph(){
+ draw();drawTicks();if(!api)return;
+ try{const [a,d,e]=tasks[index],w=$('plot').clientWidth;api.setSize(w,w);api.setCoordSystem(-8,8,-8,8);api.evalCommand('f(x) = ('+a+')*(x-('+d+'))^2+('+e+')');api.setLabelVisible('f',false);api.setColor('f',34,109,98);api.setLineThickness('f',5);const raw=api.getViewProperties(1);drawTicks(typeof raw==='string'?JSON.parse(raw):raw);$('ggb').className='ready'}catch{$('ggb').className=''}
+}
+function refresh(){
+ const expert=level==='Experte';
+ $('sign').hidden=!expert;$('fixedMinus').hidden=expert;$('signHint').hidden=!expert;
+ $('d').placeholder=expert?'|d|':'d';
+ $('d').setAttribute('aria-label',expert?'Betrag von d':'d');
+ passed.clear();$('reward').textContent='';document.querySelector('fieldset').disabled=false;document.querySelectorAll('article input').forEach(el=>{if(el.type==='radio')el.checked=false;else{el.readOnly=false;el.value='';el.className='val';el.removeAttribute('aria-invalid')}});document.querySelector('fieldset').className='';document.querySelectorAll('.msg').forEach(el=>el.textContent='');$('count').textContent=level+' · Aufgabe '+(index+1);graph()}
+function rememberTask(){
+ const inputs=Array.from(document.querySelectorAll('article input'),el=>({
+  value:el.value,checked:el.checked,readOnly:el.readOnly,style:el.className,invalid:el.getAttribute('aria-invalid')
+ }));
+ const choice=document.querySelector('#features fieldset');
+ drafts[level]={inputs,groups:[...passed],locked:choice.disabled,style:choice.className,
+  messages:Array.from(document.querySelectorAll('.msg'),el=>el.textContent),reward:$('reward').textContent};
+}
+function restoreTask(){
+ const draft=drafts[level];
+ if(!draft)return;
+ document.querySelectorAll('article input').forEach((el,i)=>{
+  const state=draft.inputs[i];
+  if(el.type==='radio')el.checked=state.checked;
+  else{el.value=state.value;el.readOnly=state.readOnly;el.className=state.style;
+   if(state.invalid!==null)el.setAttribute('aria-invalid',state.invalid)}
+ });
+ const choice=document.querySelector('#features fieldset');
+ choice.disabled=draft.locked;choice.className=draft.style;
+ draft.groups.forEach(group=>passed.add(group));
+ document.querySelectorAll('.msg').forEach((el,i)=>el.textContent=draft.messages[i]);
+ $('reward').textContent=draft.reward;
+}
+function advanceTask(){
+ delete drafts[level];
+ index=(index+1)%tasks.length;positions[level]=index;refresh();
+}
+$('next').onclick=()=>{
+ if(passed.size===3)advanceTask();
+ else $('skipDialog').showModal();
+};
+$('stay').onclick=()=>$('skipDialog').close();
+$('skip').onclick=()=>{
+ if(!$('skipDialog').open)return;
+ $('skipDialog').close();
+ earned.skips=(earned.skips||0)-1;
+ try{sessionStorage.setItem(storageKey,JSON.stringify(earned))}catch{}
+ renderScore();advanceTask();
+};
+for(const btn of document.querySelectorAll('[data-check]'))btn.onclick=()=>check(btn.dataset.check);
+document.querySelector('article').addEventListener('input',ev=>{const el=ev.target;if(el.type==='radio')document.querySelector('fieldset').className='';else{el.className='val';el.removeAttribute('aria-invalid')}el.closest('section').querySelector('.msg').textContent=''});
+for(const button of document.querySelectorAll('.levels button')){
+ button.onclick=()=>{
+  if(level===button.dataset.level)return;
+  rememberTask();
+  level=button.dataset.level;
+  tasks=pools[level];index=positions[level];
+  document.body.dataset.level=level;
+  for(const option of document.querySelectorAll('.levels button'))option.setAttribute('aria-pressed',String(option===button));
+  refresh();restoreTask();
+ };
+}
+renderScore();refresh();new ResizeObserver(graph).observe($('plot'));
+const loader=document.createElement('script');loader.src='https://www.geogebra.org/apps/deployggb.js';
+loader.onload=()=>{const w=$('plot').clientWidth;new GGBApplet({appName:'classic',perspective:'G',width:w,height:w,language:'de',showMenuBar:false,showToolBar:false,showAlgebraInput:false,showResetIcon:false,showZoomButtons:false,enableRightClick:false,enableShiftDragZoom:false,showToolBarHelp:false,appletOnLoad:instance=>{
+ const doc=new DOMParser().parseFromString(instance.getXML(),'application/xml');
+ const view=doc.querySelector('euclidianView');
+ const settings=view.querySelector('evSettings');
+ settings.setAttribute('grid','true');
+ settings.setAttribute('gridType','0');
+ let grid=view.querySelector('grid');
+ if(!grid){grid=doc.createElement('grid');view.appendChild(grid)}
+ grid.setAttribute('distX','0.5');
+ grid.setAttribute('distY','0.5');
+ for(const axis of view.querySelectorAll('axis')){axis.setAttribute('tickDistance','1');axis.setAttribute('showNumbers','false')}
+ instance.setXML(new XMLSerializer().serializeToString(doc));
+ api=instance;graph()
+}},true).inject('ggb')};document.head.append(loader);
+</script></body></html>
